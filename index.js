@@ -1,4 +1,5 @@
 var Backbone = require('backbone');
+var _ = require('underscore');
 
 // converts retarded magical arguments object to an Array object
 function toArray(arg) { return Array.prototype.slice.call(arg); }
@@ -62,4 +63,5 @@ function toArray(arg) { return Array.prototype.slice.call(arg); }
 })();
 
 
-exports = Backbone.exports
+
+_.extend(exports, Backbone)
