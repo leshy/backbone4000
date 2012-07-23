@@ -2,6 +2,7 @@
   "name": "backbone4000",
   "version": "0.1",
   "description": "some minor backbone extensions",
+  "private": true,
   "keywords": [
     "json",
     "match"
