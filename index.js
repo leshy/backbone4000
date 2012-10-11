@@ -1,11 +1,13 @@
 var Backbone = require('backbone');
 var _ = require('underscore');
 
+
+
 // converts retarded magical arguments object to an Array object
 function toArray(arg) { return Array.prototype.slice.call(arg); }
 
 // defaults attribute inheritance, and automatic super.initialize calls
-(function () {
+function patchBackbone () {
     function extend4000 () {
         var args = Array.prototype.slice.call(arguments),
         child = this;
@@ -60,8 +62,9 @@ function toArray(arg) { return Array.prototype.slice.call(arg); }
 
     Backbone.Model.triggerOnce = triggerOnce;
 
-})();
+}
 
 
+if (!Backbone.extend4000) { patchBackbone() }
 
 _.extend(exports, Backbone)
