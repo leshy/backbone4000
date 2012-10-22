@@ -52,7 +52,13 @@ function patchBackbone () {
     Backbone.Router.extendEach =
     Backbone.View.extend4000 = extend4000;
 
-    function triggerOnce(event,f) {
+    Backbone.Model.prototype.when = function (attribute,callback) {
+        var attr
+        if (attr = this.get(attribute)) { callback(attr) } 
+        else { this.onOnce('change:' + attribute, function (model,attr) { callback(attr) }) }
+    }
+
+    function onOnce(event,f) {
         var self = this;
         this.bind(event,function() {
             self.unbind(event,f);
@@ -60,7 +66,7 @@ function patchBackbone () {
         });
     }
 
-    Backbone.Model.triggerOnce = triggerOnce;
+    Backbone.Model.prototype.onOnce = onOnce;
 
 }
 
