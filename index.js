@@ -66,7 +66,7 @@ function patchBackbone () {
         });
     }
 
-    Backbone.Model.prototype.onOnce = onOnce;
+    Backbone.Model.prototype.onOnce = Backbone.Collection.prototype.onOnce = onOnce;
 
 }
 
