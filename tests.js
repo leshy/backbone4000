@@ -17,3 +17,32 @@ exports.when = function (test) {
     
     test.done()
 }
+
+
+exports._super = function (test) {
+    var X = Backbone.Model.extend4000({
+        x: function () { return 'x'}
+    })
+
+
+    var Y = Backbone.Model.extend4000({
+        y: function () { return 'y'} 
+    })    
+
+    var Z = Backbone.Model.extend4000( 
+        X, Y, 
+        {
+            z: function () { return 'z'},
+            x: function () { return this._super('x',[]) + "z"  }
+        }
+    )
+    
+    
+    z = new Z()
+    
+    console.log (z.constructor.__super__.x)
+    console.log( z.x() )
+    
+    
+    test.done()
+}
