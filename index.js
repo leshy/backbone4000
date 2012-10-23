@@ -55,7 +55,9 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = extend4000
 // The super method takes two parameters: a method name
 // and an array of arguments to pass to the overridden method.
 // This is to optimize for the common case of passing 'arguments'.
-function _super(methodName,args) {
+function _super() {
+    var args = toArray(arguments)
+    var methodName = args.shift()
 
     // Keep track of how far up the prototype chain we have traversed,
     // in order to handle nested calls to _super.
