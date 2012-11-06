@@ -83,7 +83,6 @@ function findSuper(methodName, childObject) {
 
 patchBackbone(["Model", "Collection", "View", "Router"],'_super',_super)
 
-
 // calls the callback once the attribute gets set, or calls it immediately if it already is.
 function when (attribute,callback) {
     var attr
@@ -96,10 +95,9 @@ patchBackbone(["Model"],"when",when)
 // bind for an event, but trigger the callback only once
 function onOnce(event,f) {
     var self = this;
-    this.bind(event,function() {
-        self.unbind(event,f);
-        f.apply(this,toArray(arguments));
-    });
+    var bind = function() { self.unbind(event,f); f.apply(this,toArray(arguments)); }
+    this.bind(event,bind);
+    return bind
 }
 
 patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
