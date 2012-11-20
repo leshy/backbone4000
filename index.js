@@ -84,10 +84,31 @@ function findSuper(methodName, childObject) {
 patchBackbone(["Model", "Collection", "View", "Router"],'_super',_super)
 
 // calls the callback once the attribute gets set, or calls it immediately if it already is.
-function when (attribute,callback) {
-    var attr
-    if (attr = this.get(attribute)) { callback(attr) } 
-    else { this.onOnce('change:' + attribute, function (model,attr) { callback(attr) }) }
+function when () {
+    var self = this
+    var attributes = toArray(arguments)
+    var callback = attributes.pop()
+
+    function whenOne(attribute,callback) {
+        if (attr = self.get(attribute)) { callback(attr) } 
+        else { self.onOnce('change:' + attribute, function (model,attr) { callback(attr) }) }
+    }
+
+
+    if (attributes.length == 1) {
+        whenOne(_.first(attributes),callback)
+    } else {
+        var res = {}
+        
+        // normally I'd use async here but would like to avoid a dependency.. 
+        _.map(attributes, function (attr) {
+            whenOne(attr,function (value) {
+                res[attr] = value
+                if (_.keys(res).length == attributes.length) callback(res)
+            })
+        })
+
+    }
 }
 
 patchBackbone(["Model"],"when",when)
@@ -101,9 +122,5 @@ function onOnce(event,f) {
 }
 
 patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
-
-
-
-
 
 _.extend(exports, Backbone)
