@@ -52,6 +52,13 @@ function extend4000 () {
 
 Backbone.Model.extend4000 = Backbone.View.extend4000 = extend4000
 
+function singleton () {
+    newclass = this.extend4000.apply(this,arguments)
+    return new newclass()
+}
+
+Backbone.Model.singleton = Backbone.View.singleton = singleton
+
 // The super method takes two parameters: a method name
 // and an array of arguments to pass to the overridden method.
 // This is to optimize for the common case of passing 'arguments'.
@@ -103,8 +110,6 @@ function onOnce(event,f) {
 }
 
 patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
-
-
 
 
 
