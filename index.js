@@ -90,12 +90,37 @@ function findSuper(methodName, childObject) {
 
 patchBackbone(["Model", "Collection", "View", "Router"],'_super',_super)
 
+// Calls the callback once the attribute gets set, or calls it immediately if it already is.
+// I frequently use this when model needs some attributes to be set in order to do its job, 
+// but would like the freedom to specify them post-init 
+// (sometimes this is nessesary if two instances need each others references in order to function)
+function when () {
+    var self = this
+    var attributes = toArray(arguments)
+    var callback = attributes.pop()
 
-// calls the callback once the attribute gets set, or calls it immediately if it already is.
-function when (attribute,callback) {
-    var attr
-    if (attr = this.get(attribute)) { callback(attr) } 
-    else { this.onOnce('change:' + attribute, function (model,attr) { callback(attr) }) }
+    // This is commented to get speed while sacrificing safety
+    // attributes = _.uniq(attributes) 
+
+    function whenOne(attribute,callback) {
+        if (attr = self.get(attribute)) { callback(attr) } 
+        else { self.onOnce('change:' + attribute, function (model,attr) { callback(attr) }) }
+    }
+
+    if (attributes.length == 1) {
+        whenOne(_.first(attributes),callback)
+    } else {
+        var res = {}
+        
+        // normally I'd use async here but would like to avoid a dependency.
+        _.map(attributes, function (attr) {
+            whenOne(attr,function (value) {
+                res[attr] = value
+                if (_.keys(res).length == attributes.length) callback(res)
+            })
+        })
+
+    }
 }
 
 patchBackbone(["Model"],"when",when)
@@ -103,14 +128,11 @@ patchBackbone(["Model"],"when",when)
 // bind for an event, but trigger the callback only once
 function onOnce(event,f) {
     var self = this;
-    this.bind(event,function() {
-        self.unbind(event,f);
-        f.apply(this,toArray(arguments));
-    });
+    var bind = function() { self.unbind(event,f); f.apply(this,toArray(arguments)); }
+    this.bind(event,bind);
+    return bind
 }
 
 patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
-
-
 
 _.extend(exports, Backbone)
