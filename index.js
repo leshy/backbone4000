@@ -50,7 +50,7 @@ function extend4000 () {
     return child;
 }
 
-Backbone.Model.extend4000 = Backbone.View.extend4000 = extend4000
+Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = extend4000
 
 // The super method takes two parameters: a method name
 // and an array of arguments to pass to the overridden method.
@@ -122,10 +122,25 @@ patchBackbone(["Model"],"when",when)
 function onOnce(event,f) {
     var self = this;
     var bind = function() { self.unbind(event,f); f.apply(this,toArray(arguments)); }
-    this.bind(event,bind);
-    return bind
+    this.on(event,bind);
+    return function () { self.off(event,bind) } 
 }
 
 patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
 
 _.extend(exports, Backbone)
+
+
+// passive collection
+// this is a collection that doesn't take any initialization arguments
+// used when we want to extend a backbone model with a backbone collection
+// and don't want the collection to try to add constructor arguments to itself
+exports.PassiveCollection = PassiveCollection = function () { 
+    console.log('passive init')
+    this._reset() 
+    this.initialize.apply(this, arguments);
+}
+
+PassiveCollection.prototype = _.extend({},Backbone.Collection.prototype)
+
+
