@@ -2,7 +2,11 @@
 
 .when (attribute,callback) - run callback if attribute exists or when it first gets set
 
-.onOnce - bind for an event and automatically unbind upon the first trigger
+subscribe calls return unsubscribe functions
+
+.onOnce - bind for an event and automatically unbind upon the first trigger (implemented by backbone now, as .once)
+
+.listenToOnce - guess..
 
 .singleton - create a class and immediately instantiate it
 
