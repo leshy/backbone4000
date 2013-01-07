@@ -22,6 +22,7 @@ function extend4000 () {
     }
 
     _.each(args, function (superc) {
+        if (!superc) { console.log(args);throw "FAIL" }
         // did I receive a dictionary or an object/backbone model?
         if (superc.prototype) { superc = superc.prototype; }
 
@@ -119,14 +120,36 @@ function when () {
 patchBackbone(["Model"],"when",when)
 
 // bind for an event, but trigger the callback only once
-function onOnce(event,f) {
+function onOnce(event,f,context) {
+    var unsubscribe = this.off(event,f)
+    this.once(event,f,context) // backbone implemented this.. removing my implementation
+    return unsubscribe
+}
+
+patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
+
+function listenToOnce (object,event,callback) {
     var self = this;
-    var bind = function() { self.unbind(event,f); f.apply(this,toArray(arguments)); }
+    var unsubscribe = function () { self.stopListening(object,event,bind) }
+    var bind = function () {
+        unsubscribe()
+        callback.apply(this,arguments)
+    }
+    self.listenTo(object,event,bind)
+    return unsubscribe
+}
+
+patchBackbone(["Model","View","Collection"],'listenToOnce',listenToOnce)
+
+// return unsubscribe function upon subscription
+function onOff(event,f) {
+    var self = this;
+    var bind = function() { f.apply(this,arguments) }
     this.on(event,bind);
     return function () { self.off(event,bind) } 
 }
 
-patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
+patchBackbone(["Model","View","Collection"],'onOff',onOff)
 
 _.extend(exports, Backbone)
 

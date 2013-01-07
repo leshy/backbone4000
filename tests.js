@@ -39,6 +39,27 @@ exports.Multiwhen = function (test) {
 }
 
 
+exports.listenToOnce = function (test) {
+    var Bla1 = Backbone.Model.extend4000({ bla: 1 })
+    var Bla2 = Backbone.Model.extend4000({ bla: 2 })
+
+    var bla1 = new Bla1()
+    var bla2 = new Bla2()
+
+    var cnt = 0
+        
+    bla2.listenToOnce(bla1,'testevent',function (data) {cnt += data})
+    
+    bla1.trigger('testevent',1)
+    bla1.trigger('testevent',1)
+    
+    test.equals(cnt,1)
+    test.done()
+                      
+    
+}
+
+
 exports._super = function (test) {
     var X = Backbone.Model.extend4000({
         x: function () { return 'x'}
