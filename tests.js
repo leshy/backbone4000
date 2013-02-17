@@ -1,6 +1,5 @@
 var Backbone = require('./index')
 
-
 exports.when = function (test) {
     var X = Backbone.Model.extend4000({
         initialize: function () {
@@ -17,8 +16,6 @@ exports.when = function (test) {
     
     test.done()
 }
-
-
 
 exports.Multiwhen = function (test) {
     var X = Backbone.Model.extend4000({
@@ -38,7 +35,6 @@ exports.Multiwhen = function (test) {
     test.done()
 }
 
-
 exports.listenToOnce = function (test) {
     var Bla1 = Backbone.Model.extend4000({ bla: 1 })
     var Bla2 = Backbone.Model.extend4000({ bla: 2 })
@@ -47,7 +43,7 @@ exports.listenToOnce = function (test) {
     var bla2 = new Bla2()
 
     var cnt = 0
-        
+    
     bla2.listenToOnce(bla1,'testevent',function (data) {cnt += data})
     
     bla1.trigger('testevent',1)
@@ -55,8 +51,6 @@ exports.listenToOnce = function (test) {
     
     test.equals(cnt,1)
     test.done()
-                      
-    
 }
 
 

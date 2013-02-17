@@ -128,7 +128,8 @@ patchBackbone(["Model"],"when",when)
 
 // bind for an event, but trigger the callback only once
 function onOnce(event,f,context) {
-    var unsubscribe = this.off(event,f)
+    var self = this
+    var unsubscribe = function() { self.off(event,f) }
     this.once(event,f,context) // backbone implemented this.. removing my implementation
     return unsubscribe
 }
@@ -172,5 +173,4 @@ exports.PassiveCollection = PassiveCollection = function () {
 }
 
 PassiveCollection.prototype = _.extend({},Backbone.Collection.prototype)
-
 
