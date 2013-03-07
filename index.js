@@ -1,6 +1,20 @@
 var Backbone = require('backbone');
 var _ = require('underscore');
 
+/*
+  just putting this here to remember.. backbone needs to be changed in order to be able to run jquery dependant views via browserify
+
+  // For Backbone's purposes, jQuery, Zepto, or Ender owns the `$` variable.
+  try {
+      window
+      console.log("I'm running in a browser");
+      Backbone.$ = require('jquery-browserify')
+  } catch(err) {
+      console.log("I'm not running in a browser"); 
+  }
+
+*/
+
 // converts retarded magical arguments object to an Array object
 function toArray(arg) { return Array.prototype.slice.call(arg); }
 
