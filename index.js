@@ -129,29 +129,6 @@ function when () {
 
 patchBackbone(["Model"],"when",when)
 
-// bind for an event, but trigger the callback only once
-function onOnce(event,f,context) {
-    var self = this
-    var unsubscribe = function() { self.off(event,f) }
-    this.once(event,f,context) // backbone implemented this.. removing my implementation
-    return unsubscribe
-}
-
-patchBackbone(["Model","View","Collection"],'onOnce',onOnce)
-
-function listenToOnce (object,event,callback) {
-    var self = this;
-    var unsubscribe = function () { self.stopListening(object,event,bind) }
-    var bind = function () {
-        unsubscribe()
-        callback.apply(this,arguments)
-    }
-    self.listenTo(object,event,bind)
-    return unsubscribe
-}
-
-patchBackbone(["Model","View","Collection"],'listenToOnce',listenToOnce)
-
 // return unsubscribe function upon subscription
 function onOff(event,f) {
     var self = this;
@@ -162,8 +139,17 @@ function onOff(event,f) {
 
 patchBackbone(["Model","View","Collection"],'onOff',onOff)
 
-_.extend(exports, Backbone)
+// view remove executes view.cleanup if it exists and triggers remove event
 
+var oldremove = Backbone.View.prototype.remove
+
+Backbone.View.prototype.remove = function () {
+    this.trigger('cleanup')
+    if (this.cleanup) { this.cleanup() }
+    oldremove.call(this)
+}
+
+_.extend(exports, Backbone)
 
 // passive collection
 // this is a collection that doesn't take any initialization arguments
