@@ -108,7 +108,7 @@ function when () {
 
     function whenOne(attribute,callback) {
         if (attr = self.get(attribute)) { callback(attr) } 
-        else { self.onOnce('change:' + attribute, function (model,attr) { callback(attr) }) }
+        else { self.once('change:' + attribute, function (model,attr) { callback(attr) }) }
     }
 
     if (attributes.length == 1) {
