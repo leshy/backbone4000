@@ -25,7 +25,8 @@ function extend4000 () {
     }
 
     _.each(args, function (superc) {
-        if (!superc) { console.log(args);throw "FAIL" }
+        if (!superc) { throw "FAIL NO SUPERC" }
+
         // did I receive a dictionary or an object/backbone model?
         if (superc.prototype) { superc = superc.prototype; }
 
@@ -76,6 +77,7 @@ function _super() {
     var currentObject = this._superCallObjects[methodName] || this,
     parentObject  = findSuper(methodName, currentObject);
     this._superCallObjects[methodName] = parentObject;
+//    console.log(methodName,args);
 
     var result = parentObject[methodName].apply(this, args || []);
     delete this._superCallObjects[methodName];
@@ -139,6 +141,19 @@ function onOff(event,f) {
 
 patchBackbone(["Model","View","Collection"],'onOff',onOff)
 
+
+// return unsubscribe function upon subscription
+function onceOff(event,f) {
+    var self = this;
+    var bind = function() { f.apply(this,arguments) }
+    this.once(event,bind);
+    return function () { self.off(event,bind) } 
+}
+
+patchBackbone(["Model","View","Collection"],'onceOff',onceOff)
+
+
+
 // view remove executes view.cleanup if it exists and triggers remove event
 
 var oldremove = Backbone.View.prototype.remove
@@ -156,7 +171,6 @@ _.extend(exports, Backbone)
 // used when we want to extend a backbone model with a backbone collection
 // and don't want the collection to try to add constructor arguments to itself
 exports.PassiveCollection = PassiveCollection = function () { 
-    console.log('passive init')
     this._reset() 
     this.initialize.apply(this, arguments);
 }
