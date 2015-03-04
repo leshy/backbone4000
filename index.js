@@ -155,14 +155,14 @@ patchBackbone(["Model","View","Collection"],'onceOff',onceOff)
 
 // return unsubscribe function upon subscription
 function listenToOnceOff(model,event,f) {
+    if (f == undefined) { return }
     var self = this;
     var bind = function() { f.apply(this,arguments) }
     this.listenToOnce(model,event,bind);
-    return function () { self.stopListening(model,event,bind) } 
+    return function () { self.stopListening(model,event,bind) }
 }
 
 patchBackbone(["Model","View","Collection"],'listenToOnceOff',listenToOnceOff)
-
 
 // view remove executes view.cleanup if it exists and triggers remove event
 
