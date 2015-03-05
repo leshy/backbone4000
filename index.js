@@ -175,6 +175,10 @@ Backbone.View.prototype.remove = function () {
 
 _.extend(exports, Backbone)
 
+// npm installs multiple backbones and preparemodel instanceof fails, this just removes the whole
+// autoinstantiation that I don't really use.
+exports.Collection.prototype._prepareModel = function(attrs) { return attrs }
+
 // passive collection
 // this is a collection that doesn't take any initialization arguments
 // used when we want to extend a backbone model with a backbone collection
