@@ -10,14 +10,18 @@ require! {
 Backbone = require './jspart'
 
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
+
+  # smart class join
   _.map @extenders, (extender) -> h.pushm classes, extender(classes)
-
+  # merge
   newClass = h.uextend classes
-
-  _.map newClass.meta, (morpher) -> morpher(newClass)
+  # join metaclass transformations
+  newClass = h.uextend newClass, { metaClass: h.push(newClass.metaClass, @::metaClass) }  
+  # apply metaclass transformations
+  newClass = _.reduce( (newClass.metaClass or []), ((newClass,morpher) ~> morpher(newClass,@)), newClass)
   
-  @extend newClass
-
+  ret = @extend newClass
+  
 metaExtender = {}
 
 metaExtender.mergeAttribute = (validate,join,name) -->
@@ -37,7 +41,6 @@ metaExtender.mergeAttribute = (validate,join,name) -->
 
 
 metaExtender.chainF = metaExtender.mergeAttribute ((f) -> f?@@ is Function), (f1, f2) -> f1 >> f2
-  
 metaExtender.mergeDict = metaExtender.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
 metaExtender.mergeDictDeep = metaExtender.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
 
@@ -48,8 +51,6 @@ extender.defaults = metaExtender.mergeDict 'defaults'
 extender.deepDefaults = metaExtender.mergeDictDeep 'defaults'
 
 Backbone.Model.extenders = [ extender.initialize ]
-Backbone.Model.meta = [ ]
-
-metaClassers = {}
 
 _.extend exports, Backbone
+

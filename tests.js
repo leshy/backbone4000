@@ -31,9 +31,10 @@
     }, {
       bla: 666
     }, {
-      meta: [function(cls){
-        return cls.bla *= 2;
-      }]
+      metaClass: function(cls){
+        cls.bla *= 2;
+        return cls;
+      }
     });
     a = new A();
     test.equals(a.bla, 1332);
