@@ -2,7 +2,7 @@
 (function(){
   var backbone;
   backbone = require('./index');
-  exports.bla = function(test){
+  exports.basicExtend = function(test){
     var A, a;
     A = backbone.Model.extend4000({
       initialize: function(){
@@ -16,6 +16,27 @@
       bla: 666
     });
     a = new A();
+    return test.done();
+  };
+  exports.basicMetaClass = function(test){
+    var A, a;
+    A = backbone.Model.extend4000({
+      initialize: function(){
+        return console.log(1);
+      }
+    }, {
+      initialize: function(){
+        return console.log(2);
+      }
+    }, {
+      bla: 666
+    }, {
+      meta: [function(cls){
+        return cls.bla *= 2;
+      }]
+    });
+    a = new A();
+    test.equals(a.bla, 1332);
     return test.done();
   };
 }).call(this);

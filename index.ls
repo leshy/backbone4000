@@ -3,24 +3,27 @@
 { map, fold1, keys, values, first, flatten } = require 'prelude-ls'
 
 require! {
-  colors: colors
-  backbone: Backbone
   underscore: _
   helpers: h
 }
 
-Backbone.Model.extend4000 = (...classes) ->
-  _.map @extenders, (extender) ->    
-    newCls = extender.apply @, classes
-    if newCls then classes.push newCls
+Backbone = require './jspart'
 
-  @extend h.uextend classes    
-    
+Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
+  _.map @extenders, (extender) -> h.pushm classes, extender(classes)
+
+  newClass = h.uextend classes
+
+  _.map newClass.meta, (morpher) -> morpher(newClass)
+  
+  @extend newClass
+
 metaExtender = {}
 
 metaExtender.mergeAttribute = (validate,join,name) -->
-  (...classes) ->
+  (classes) ->
     joinedAttribute = _.reduce classes, ((joined, cls) ->
+      if cls:: then cls = cls::
       attr = cls[name]
       if not validate or validate attr
         if joined then join(joined, attr) else attr

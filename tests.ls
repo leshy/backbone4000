@@ -1,11 +1,25 @@
 backbone = require './index'
   
-exports.bla = (test) ->
+exports.basicExtend = (test) ->
   A = backbone.Model.extend4000(
-    { initialize: -> console.log 1 },
-    { initialize: -> console.log 2 },
+    { initialize: -> console.log 1 }
+    { initialize: -> console.log 2 }
     { bla: 666} )
     
   a = new A()
     
+  test.done()
+
+
+exports.basicMetaClass = (test) ->
+  A = backbone.Model.extend4000(
+    { initialize: -> console.log 1 }
+    { initialize: -> console.log 2 }
+    { bla: 666}
+    { meta: [ (cls) -> cls.bla *= 2 ] } )
+
+    
+  a = new A()
+
+  test.equals a.bla, 1332
   test.done()
