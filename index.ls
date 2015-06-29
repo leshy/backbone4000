@@ -16,13 +16,15 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   # merge
   newClass = h.uextend classes
   # join metaclass transformations
-  newClass = h.uextend newClass, { metaClass: h.push(newClass.metaClass, @::metaClass) }  
+  newClass = h.uextend newClass, { metaClass: h.push(newClass.metaClass, @::metaClass) }
   # apply metaclass transformations
   newClass = _.reduce( (newClass.metaClass or []), ((newClass,morpher) ~> morpher(newClass,@)), newClass)
   
-  ret = @extend newClass
+  @extend newClass
+
+
   
-metaExtender = {}
+metaExtender = exports.metaExtender = {}
 
 metaExtender.mergeAttribute = (validate,join,name) -->
   (classes) ->
@@ -44,13 +46,14 @@ metaExtender.chainF = metaExtender.mergeAttribute ((f) -> f?@@ is Function), (f1
 metaExtender.mergeDict = metaExtender.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
 metaExtender.mergeDictDeep = metaExtender.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
 
-extender = {}
+extender = exports.extender = {}
 
 extender.initialize = metaExtender.chainF 'initialize'
 extender.defaults = metaExtender.mergeDict 'defaults'
 extender.deepDefaults = metaExtender.mergeDictDeep 'defaults'
 
 Backbone.Model.extenders = [ extender.initialize ]
+
 
 _.extend exports, Backbone
 

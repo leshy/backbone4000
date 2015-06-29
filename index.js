@@ -6,7 +6,7 @@
   h = require('helpers');
   Backbone = require('./jspart');
   Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = function(){
-    var classes, newClass, ret, this$ = this;
+    var classes, newClass, this$ = this;
     classes = slice$.call(arguments);
     _.map(this.extenders, function(extender){
       return h.pushm(classes, extender(classes));
@@ -18,9 +18,9 @@
     newClass = _.reduce(newClass.metaClass || [], function(newClass, morpher){
       return morpher(newClass, this$);
     }, newClass);
-    return ret = this.extend(newClass);
+    return this.extend(newClass);
   };
-  metaExtender = {};
+  metaExtender = exports.metaExtender = {};
   metaExtender.mergeAttribute = curry$(function(validate, join, name){
     return function(classes){
       var joinedAttribute, ret;
@@ -62,7 +62,7 @@
   }, function(d1, d2){
     return h.extend(d1, d2);
   });
-  extender = {};
+  extender = exports.extender = {};
   extender.initialize = metaExtender.chainF('initialize');
   extender.defaults = metaExtender.mergeDict('defaults');
   extender.deepDefaults = metaExtender.mergeDictDeep('defaults');
