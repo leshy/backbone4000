@@ -8,7 +8,7 @@
   Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = function(){
     var classes, newClass, this$ = this;
     classes = slice$.call(arguments);
-    _.map(this.extenders, function(extender){
+    _.map(h.push(this.extenders, _.pluck(classes, 'extenders')), function(extender){
       return h.pushm(classes, extender(classes));
     });
     newClass = h.uextend(classes);
@@ -55,6 +55,7 @@
   metaExtender.mergeDict = metaExtender.mergeAttribute(function(d){
     return (d != null ? d.constructor : void 8) === Object;
   }, function(d1, d2){
+    console.log('merging!', d1, d2);
     return _.extend({}, d1, d2);
   });
   metaExtender.mergeDictDeep = metaExtender.mergeAttribute(function(d){
@@ -66,7 +67,7 @@
   extender.initialize = metaExtender.chainF('initialize');
   extender.defaults = metaExtender.mergeDict('defaults');
   extender.deepDefaults = metaExtender.mergeDictDeep('defaults');
-  Backbone.Model.extenders = [extender.initialize];
+  Backbone.Model.extenders = [extender.initialize, extender.defaults];
   _.extend(exports, Backbone);
   function curry$(f, bound){
     var context,
