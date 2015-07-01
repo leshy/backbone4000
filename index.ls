@@ -5,31 +5,39 @@
 require! {
   underscore: _
   helpers: h
+  colors: colors
 }
 
 Backbone = require './jspart'
 
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
+  classProperties = {}
 
-  # smart class join
-  _.map (h.push @extenders, _.pluck classes, 'extenders'), (extender) ->
-    h.pushm classes, extender(classes)
-
-  # merge
+  classInherit = (attrName) ~>
+    newAttr = h.filterFalse (_.flatten _.pluck classes, attrName)
+    if newAttr then return classProperties[attrName] = h.push @[attrName], newAttr
+    return @[attrName]
+    
+  
+  # smart class join via mergers
+  mergers = classInherit 'mergers'
+  _.map mergers, (merger) ~> h.pushm classes, merger.call @, classes
+  
+  # merge all classes
   newClass = h.uextend classes
-  # join metaclass transformations
-  newClass = h.uextend newClass, { metaClass: h.push(newClass.metaClass, @::metaClass) }
+    
   # apply metaclass transformations
-  newClass = _.reduce( (newClass.metaClass or []), ((newClass,morpher) ~> morpher(newClass,@)), newClass)
+  transformers = classInherit 'transformers'
+  newClass = _.reduce( (transformers or []), ((newClass,transformer) ~> transformer(newClass,@)), newClass)
+  
+  @extend newClass, classProperties
 
-  @extend newClass
 
+metaMerger = exports.metaMerger = {}
 
-
-metaExtender = exports.metaExtender = {}
-
-metaExtender.mergeAttribute = (validate,join,name) -->
+metaMerger.mergeAttribute = (validate,join,name) -->
   (classes) ->
+    classes = h.push classes, @::
     joinedAttribute = _.reduce classes, ((joined, cls) ->
       if cls:: then cls = cls::
       attr = cls[name]
@@ -43,21 +51,21 @@ metaExtender.mergeAttribute = (validate,join,name) -->
       ret
     else void
 
+metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), (f1, f2) -> f1 >> f2
+metaMerger.mergeDict = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2  
+metaMerger.mergeDictDeep = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
 
-metaExtender.chainF = metaExtender.mergeAttribute ((f) -> f?@@ is Function), (f1, f2) -> f1 >> f2
-metaExtender.mergeDict = metaExtender.mergeAttribute ((d) ->
-  d?@@ is Object), (d1, d2) ->
-  console.log 'merging!',d1,d2
-  _.extend {}, d1, d2
-metaExtender.mergeDictDeep = metaExtender.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
 
-extender = exports.extender = {}
 
-extender.initialize = metaExtender.chainF 'initialize'
-extender.defaults = metaExtender.mergeDict 'defaults'
-extender.deepDefaults = metaExtender.mergeDictDeep 'defaults'
 
-Backbone.Model.extenders = [ extender.initialize, extender.defaults ]
+
+merger = exports.merger = {}
+
+merger.initialize = metaMerger.chainF 'initialize'
+merger.defaults = metaMerger.mergeDict 'defaults'
+merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
+
+Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
 
 
 _.extend exports, Backbone

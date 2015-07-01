@@ -31,7 +31,7 @@
     }, {
       bla: 666
     }, {
-      metaClass: function(cls){
+      transformers: function(cls){
         cls.bla *= 2;
         return cls;
       }

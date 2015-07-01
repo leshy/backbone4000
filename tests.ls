@@ -16,7 +16,7 @@ exports.basicMetaClass = (test) ->
     { initialize: -> console.log 1 }
     { initialize: -> console.log 2 }
     { bla: 666}
-    { metaClass: (cls) -> cls.bla *= 2; cls } )
+    { transformers: (cls) -> cls.bla *= 2; cls } )
 
     
   a = new A()
