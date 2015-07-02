@@ -17,19 +17,18 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
     newAttr = h.filterFalse (_.flatten _.pluck classes, attrName)
     if newAttr then return classProperties[attrName] = h.push @[attrName], newAttr
     return @[attrName]
-    
-  
+
   # smart class join via mergers
   mergers = classInherit 'mergers'
   _.map mergers, (merger) ~> h.pushm classes, merger.call @, classes
-  
+
   # merge all classes
   newClass = h.uextend classes
-    
+
   # apply metaclass transformations
   transformers = classInherit 'transformers'
   newClass = _.reduce( (transformers or []), ((newClass,transformer) ~> transformer(newClass,@)), newClass)
-  
+
   @extend newClass, classProperties
 
 
@@ -38,8 +37,13 @@ metaMerger = exports.metaMerger = {}
 metaMerger.mergeAttribute = (validate,join,name) -->
   (classes) ->
     classes = h.push classes, @::
+    classes.reverse()
     joinedAttribute = _.reduce classes, ((joined, cls) ->
-      if cls:: then cls = cls::
+      
+      if cls::
+        cls = cls::
+        console.log "CLS",cls
+        
       attr = cls[name]
       if not validate or validate attr
         if joined then join(joined, attr) else attr
@@ -51,11 +55,9 @@ metaMerger.mergeAttribute = (validate,join,name) -->
       ret
     else void
 
-metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), (f1, f2) -> f1 >> f2
-metaMerger.mergeDict = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2  
+metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), (f1, f2) -> -> f1(...); f2(...)
+metaMerger.mergeDict = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
 metaMerger.mergeDictDeep = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
-
-
 
 
 

@@ -34,10 +34,12 @@
     return function(classes){
       var joinedAttribute, ret;
       classes = h.push(classes, this.prototype);
+      classes.reverse();
       joinedAttribute = _.reduce(classes, function(joined, cls){
         var attr;
         if (cls.prototype) {
           cls = cls.prototype;
+          console.log("CLS", cls);
         }
         attr = cls[name];
         if (!validate || validate(attr)) {
@@ -60,7 +62,10 @@
   metaMerger.chainF = metaMerger.mergeAttribute(function(f){
     return (f != null ? f.constructor : void 8) === Function;
   }, function(f1, f2){
-    return compose$(f1, f2);
+    return function(){
+      f1.apply(this, arguments);
+      return f2.apply(this, arguments);
+    };
   });
   metaMerger.mergeDict = metaMerger.mergeAttribute(function(d){
     return (d != null ? d.constructor : void 8) === Object;
@@ -90,16 +95,5 @@
       } : f;
     };
     return _curry();
-  }
-  function compose$() {
-    var functions = arguments;
-    return function() {
-      var i, result;
-      result = functions[0].apply(this, arguments);
-      for (i = 1; i < functions.length; ++i) {
-        result = functions[i](result);
-      }
-      return result;
-    };
   }
 }).call(this);
