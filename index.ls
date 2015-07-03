@@ -5,7 +5,6 @@
 require! {
   underscore: _
   helpers: h
-  colors: colors
 }
 
 Backbone = require './jspart'
