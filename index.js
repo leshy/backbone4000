@@ -6,10 +6,19 @@
   h = require('helpers');
   colors = require('colors');
   Backbone = require('./jspart');
+  Backbone.Model['new'] = true;
   Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = function(){
     var classes, classProperties, classInherit, mergers, newClass, transformers, this$ = this;
     classes = slice$.call(arguments);
     classProperties = {};
+    classes = _.map(classes, function(cls){
+      if (cls.prototype) {
+        return cls.prototype;
+      } else {
+        return cls;
+      }
+    });
+    classes = h.unshift(classes, this.prototype);
     classInherit = function(attrName){
       var newAttr;
       newAttr = h.filterFalse(_.flatten(_.pluck(classes, attrName)));
@@ -22,25 +31,21 @@
     _.map(mergers, function(merger){
       return h.pushm(classes, merger.call(this$, classes));
     });
-    newClass = h.uextend(classes);
+    newClass = _.reduce(classes, function(newClass, includeClass){
+      return newClass.extend(includeClass);
+    }, this);
     transformers = classInherit('transformers');
     newClass = _.reduce(transformers || [], function(newClass, transformer){
       return transformer(newClass, this$);
     }, newClass);
-    return this.extend(newClass, classProperties);
+    return newClass = newClass.extend({}, classProperties);
   };
   metaMerger = exports.metaMerger = {};
   metaMerger.mergeAttribute = curry$(function(validate, join, name){
     return function(classes){
       var joinedAttribute, ret;
-      classes = h.push(classes, this.prototype);
-      classes.reverse();
       joinedAttribute = _.reduce(classes, function(joined, cls){
         var attr;
-        if (cls.prototype) {
-          cls = cls.prototype;
-          console.log("CLS", cls);
-        }
         attr = cls[name];
         if (!validate || validate(attr)) {
           if (joined) {

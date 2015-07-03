@@ -40,4 +40,28 @@
     test.equals(a.bla, 1332);
     return test.done();
   };
+  exports.init = function(test){
+    var A, B, C, c;
+    A = backbone.Model.extend4000({
+      initialize: function(it){
+        return console.log('initargs', it);
+      }
+    }, {
+      initialize: function(){
+        return console.log('getbla', this.bla);
+      }
+    });
+    B = backbone.Model.extend4000({
+      initialize: function(){
+        return console.log("VALIDATOR", this.bla, this.get('bla'));
+      }
+    });
+    C = A.extend4000(B, {
+      bla: 6
+    });
+    c = new C({
+      bla: 666
+    });
+    return test.done();
+  };
 }).call(this);

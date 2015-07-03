@@ -10,9 +10,16 @@ require! {
 
 Backbone = require './jspart'
 
+Backbone.Model.new = true
+
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
   classProperties = {}
-
+  
+  classes = _.map classes, (cls) ->
+    if cls:: then return cls:: else cls
+  
+  classes = h.unshift classes, @::
+  
   classInherit = (attrName) ~>
     newAttr = h.filterFalse (_.flatten _.pluck classes, attrName)
     if newAttr then return classProperties[attrName] = h.push @[attrName], newAttr
@@ -23,33 +30,27 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   _.map mergers, (merger) ~> h.pushm classes, merger.call @, classes
 
   # merge all classes
-  newClass = h.uextend classes
-
+  newClass = _.reduce classes, ((newClass,includeClass) -> newClass.extend includeClass), @
+  
   # apply metaclass transformations
   transformers = classInherit 'transformers'
   newClass = _.reduce( (transformers or []), ((newClass,transformer) ~> transformer(newClass,@)), newClass)
 
-  @extend newClass, classProperties
-
+  # inherit class properties (mergers and transformers)
+  newClass = newClass.extend {}, classProperties
 
 metaMerger = exports.metaMerger = {}
 
 metaMerger.mergeAttribute = (validate,join,name) -->
   (classes) ->
-    classes = h.push classes, @::
-    classes.reverse()
-    joinedAttribute = _.reduce classes, ((joined, cls) ->
-      
-      if cls::
-        cls = cls::
-        console.log "CLS",cls
-        
+    joinedAttribute = _.reduce classes, ((joined, cls) ->        
       attr = cls[name]
       if not validate or validate attr
         if joined then join(joined, attr) else attr
       else joined), void
 
     if joinedAttribute
+#      ret = { name: 'j_' + name }
       ret = {}
       ret[name] = joinedAttribute
       ret
