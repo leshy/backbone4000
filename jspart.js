@@ -1,4 +1,5 @@
 var Backbone = require('backbone');
+
 var _ = require('underscore');
 
 // make backbone views browserify compatible
@@ -20,41 +21,9 @@ function singleton () {
 
 Backbone.Model.singleton = Backbone.View.singleton = singleton
 
-// The super method takes two parameters: a method name
-// and an array of arguments to pass to the overridden method.
-// This is to optimize for the common case of passing 'arguments'.
-function _super() {
-    var args = toArray(arguments)
-    var methodName = args.shift()
-
-    // Keep track of how far up the prototype chain we have traversed,
-    // in order to handle nested calls to _super.
-    this._superCallObjects || (this._superCallObjects = {});
-    var currentObject = this._superCallObjects[methodName] || this,
-    parentObject  = findSuper(methodName, currentObject);
-    this._superCallObjects[methodName] = parentObject;
-//    console.log(methodName,args);
-
-    var result = parentObject[methodName].apply(this, args || []);
-    delete this._superCallObjects[methodName];
-    return result;
-}
-
-// Find the next object up the prototype chain that has a
-// different implementation of the method.
-function findSuper(methodName, childObject) {
-    var object = childObject;
-    while (object[methodName] === childObject[methodName]) {
-        object = object.constructor.__super__;
-    }
-    return object;
-}
-
-patchBackbone(["Model", "Collection", "View", "Router"],'_super',_super)
-
 // Calls the callback once the attribute gets set, or calls it immediately if it already is.
-// I frequently use this when model needs some attributes to be set in order to do its job, 
-// but would like the freedom to specify them post-init 
+// I frequently use this when model needs some attributes to be set in order to do its job,
+// but would like the freedom to specify them post-init
 // (sometimes this is nessesary if two instances need each others references in order to function)
 function when () {
     var self = this
@@ -62,10 +31,10 @@ function when () {
     var callback = attributes.pop()
 
     // This is commented to get speed while sacrificing safety
-    // attributes = _.uniq(attributes) 
+    // attributes = _.uniq(attributes)
 
     function whenOne(attribute,callback) {
-        if (attr = self.get(attribute)) { callback(attr) } 
+        if (attr = self.get(attribute)) { callback(attr) }
         else { self.once('change:' + attribute, function (model,attr) { callback(attr) }) }
     }
 
@@ -73,7 +42,7 @@ function when () {
         whenOne(_.first(attributes),callback)
     } else {
         var res = {}
-        
+
         // normally I'd use async here but would like to avoid a dependency.
         _.map(attributes, function (attr) {
             whenOne(attr,function (value) {
@@ -92,7 +61,7 @@ function onOff(event,f) {
     var self = this;
     var bind = function() { f.apply(this,arguments) }
     this.on(event,bind);
-    return function () { self.off(event,bind) } 
+    return function () { self.off(event,bind) }
 }
 
 patchBackbone(["Model","View","Collection"],'onOff',onOff)
@@ -103,7 +72,7 @@ function onceOff(event,f) {
     var self = this;
     var bind = function() { f.apply(this,arguments) }
     this.once(event,bind);
-    return function () { self.off(event,bind) } 
+    return function () { self.off(event,bind) }
 }
 
 patchBackbone(["Model","View","Collection"],'onceOff',onceOff)
@@ -139,10 +108,43 @@ exports.Collection.prototype._prepareModel = function(attrs) { return attrs }
 // this is a collection that doesn't take any initialization arguments
 // used when we want to extend a backbone model with a backbone collection
 // and don't want the collection to try to add constructor arguments to itself
-exports.PassiveCollection = PassiveCollection = function () { 
-    this._reset() 
+exports.PassiveCollection = PassiveCollection = function () {
+    this._reset()
     this.initialize.apply(this, arguments);
 }
 
 PassiveCollection.prototype = _.extend({},Backbone.Collection.prototype)
+
+
+// The super method takes two parameters: a method name
+// and an array of arguments to pass to the overridden method.
+// This is to optimize for the common case of passing 'arguments'.
+function _super(methodName, args) {
+
+  // Keep track of how far up the prototype chain we have traversed,
+  // in order to handle nested calls to _super.
+  this._superCallObjects || (this._superCallObjects = {});
+  var currentObject = this._superCallObjects[methodName] || this,
+      parentObject  = findSuper(methodName, currentObject);
+  this._superCallObjects[methodName] = parentObject;
+
+  var result = parentObject[methodName].apply(this, args || []);
+  delete this._superCallObjects[methodName];
+  return result;
+}
+
+// Find the next object up the prototype chain that has a
+// different implementation of the method.
+function findSuper(methodName, childObject) {
+  var object = childObject;
+  while (object[methodName] === childObject[methodName]) {
+    object = object.constructor.__super__;
+  }
+  return object;
+}
+
+_.each(["Model", "Collection", "View", "Router"], function(klass) {
+  Backbone[klass].prototype._super = _super;
+});
+
 

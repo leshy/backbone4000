@@ -32,7 +32,7 @@
       bla: 666
     }, {
       transformers: function(cls){
-        cls.bla *= 2;
+        cls.prototype.bla *= 2;
         return cls;
       }
     });
@@ -45,15 +45,26 @@
     A = backbone.Model.extend4000({
       initialize: function(it){
         return console.log('initargs', it);
+      },
+      testf: function(){
+        return console.log('testf a1');
       }
     }, {
       initialize: function(){
         return console.log('getbla', this.bla);
+      },
+      testf: function(){
+        return console.log('testf a2');
       }
     });
     B = backbone.Model.extend4000({
       initialize: function(){
         return console.log("VALIDATOR", this.bla, this.get('bla'));
+      },
+      testf: function(){
+        console.log('testf b');
+        this._super(1, 2);
+        return 3;
       }
     });
     C = A.extend4000(B, {
@@ -62,6 +73,7 @@
     c = new C({
       bla: 666
     });
+    console.log(c.testf());
     return test.done();
   };
 }).call(this);

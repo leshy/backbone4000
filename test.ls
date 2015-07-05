@@ -1,14 +1,39 @@
-_ = require 'underscore'
+backbone = require './index'
 
-bla = ->
-  @x = 3
+A = exports.A = backbone.Model.extend4000(
+  {
+    _name: 'A1'
+    initialize: -> console.log 'initargs', it
+    testf: -> console.log 'testf a1'
+  },
 
-bla::extend (dict={}) ->
-  n = -> _.extend @, dict 
-  n:: = @
-  n
+  {
+    _name: 'A2'
+    initialize: -> console.log 'getbla', @bla
+    testf: -> console.log 'testf a2'
+  })
 
-a = new bla()
-console.log a.x,
 
-blu = bla.extend { y: 5}
+B = exports.B = A.extend4000({
+  _name: 'B'
+  initialize: ->
+    console.log "VALIDATOR", @bla, @get 'bla'
+  
+  testf: ->
+    console.log 'testf b called'
+    @_super 'testf', 1, 2
+    return 3
+})
+
+
+C = exports.C = B.extend4000({
+  _name: 'C'
+  bla: 6
+})
+
+
+c = new C bla: 666
+
+
+
+console.log c.testf()

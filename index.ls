@@ -9,16 +9,14 @@ require! {
 
 Backbone = require './jspart'
 
-Backbone.Model.new = true
-
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
   classProperties = {}
-  
+
   classes = _.map classes, (cls) ->
     if cls:: then return cls:: else cls
-  
+
   classes = h.unshift classes, @::
-  
+
   classInherit = (attrName) ~>
     newAttr = h.filterFalse (_.flatten _.pluck classes, attrName)
     if newAttr then return classProperties[attrName] = h.push @[attrName], newAttr
@@ -29,8 +27,10 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   _.map mergers, (merger) ~> h.pushm classes, merger.call @, classes
 
   # merge all classes
-  newClass = _.reduce classes, ((newClass,includeClass) -> newClass.extend includeClass), @
-  
+  newClass = _.reduce classes, ((newClass,includeClass) ->
+    console.log 'extend with', includeClass
+    newClass.extend includeClass), @
+
   # apply metaclass transformations
   transformers = classInherit 'transformers'
   newClass = _.reduce( (transformers or []), ((newClass,transformer) ~> transformer(newClass,@)), newClass)
@@ -38,11 +38,29 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   # inherit class properties (mergers and transformers)
   newClass = newClass.extend {}, classProperties
 
+
+Backbone.Model::_super2 = (methodName, ...args) ->
+  
+  findMethod = (methodName, target) ->
+    console.log 'findMethod',methodName
+    
+    if target[methodName]?@@ is Function then target
+    else findMethod methodName, target.constructor.__super__
+
+  
+  searchTarget = (findMethod methodName, @).constructor.__super__ # find first one, and ignore it.
+
+  console.log 'found first one, looking for second', searchTarget
+  #findMethod(methodName, searchTarget)[methodName].apply @, args
+  console.log findMethod(methodName, searchTarget)[methodName]
+  
+
+
 metaMerger = exports.metaMerger = {}
 
 metaMerger.mergeAttribute = (validate,join,name) -->
   (classes) ->
-    joinedAttribute = _.reduce classes, ((joined, cls) ->        
+    joinedAttribute = _.reduce classes, ((joined, cls) ->
       attr = cls[name]
       if not validate or validate attr
         if joined then join(joined, attr) else attr
@@ -61,6 +79,7 @@ metaMerger.mergeDictDeep = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d
 
 
 
+
 merger = exports.merger = {}
 
 merger.initialize = metaMerger.chainF 'initialize'
@@ -68,6 +87,8 @@ merger.defaults = metaMerger.mergeDict 'defaults'
 merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
 
 Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
+
+
 
 
 _.extend exports, Backbone

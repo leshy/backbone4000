@@ -5,7 +5,6 @@
   _ = require('underscore');
   h = require('helpers');
   Backbone = require('./jspart');
-  Backbone.Model['new'] = true;
   Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = function(){
     var classes, classProperties, classInherit, mergers, newClass, transformers, this$ = this;
     classes = slice$.call(arguments);
@@ -31,6 +30,7 @@
       return h.pushm(classes, merger.call(this$, classes));
     });
     newClass = _.reduce(classes, function(newClass, includeClass){
+      console.log('extend with', includeClass);
       return newClass.extend(includeClass);
     }, this);
     transformers = classInherit('transformers');
@@ -38,6 +38,22 @@
       return transformer(newClass, this$);
     }, newClass);
     return newClass = newClass.extend({}, classProperties);
+  };
+  Backbone.Model.prototype._super2 = function(methodName){
+    var args, findMethod, searchTarget;
+    args = slice$.call(arguments, 1);
+    findMethod = function(methodName, target){
+      var ref$;
+      console.log('findMethod', methodName);
+      if (((ref$ = target[methodName]) != null ? ref$.constructor : void 8) === Function) {
+        return target;
+      } else {
+        return findMethod(methodName, target.constructor.__super__);
+      }
+    };
+    searchTarget = findMethod(methodName, this).constructor.__super__;
+    console.log('found first one, looking for second', searchTarget);
+    return console.log(findMethod(methodName, searchTarget)[methodName]);
   };
   metaMerger = exports.metaMerger = {};
   metaMerger.mergeAttribute = curry$(function(validate, join, name){
