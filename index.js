@@ -94,8 +94,8 @@
     return (f != null ? f.constructor : void 8) === Function;
   }, function(f1, f2){
     return function(){
-      f1.apply(this, arguments);
-      return f2.apply(this, arguments);
+      f2.apply(this, arguments);
+      return f1.apply(this, arguments);
     };
   });
   metaMerger.mergeDict = metaMerger.mergeAttribute(function(d){

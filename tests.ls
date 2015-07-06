@@ -1,4 +1,5 @@
 backbone = require './index'
+util = require 'util'
   
 exports.basicExtend = (test) ->
   res = {}
@@ -44,7 +45,7 @@ exports.inherit = (test) ->
   test.done()
 
   
-exports.properSuper = (test) ->
+exports.properSuperAndSuch = (test) ->
   res = {}
   A = backbone.Model.extend4000(
     {
@@ -76,6 +77,8 @@ exports.properSuper = (test) ->
   })
   
   C = A.extend4000( B, {
+    initialize: ->
+      res.c1 = it
     bla: 1
   })
 
@@ -83,7 +86,7 @@ exports.properSuper = (test) ->
 
   c.testf('hi there')
 
-
-  test.deepEqual res, { b1: { bla: 2 }, a1: { bla: 2 }, a1bla: 1, a2: { bla: 2 }, a2bla: 1, tb: 'hi there', ta2: 'supercall' }
+  console.log util.inspect res, colors: true
+  test.deepEqual res, { c1: { bla: 2 }, b1: { bla: 2 }, a1: { bla: 2 }, a1bla: 1, a2: { bla: 2 }, a2bla: 1, tb: 'hi there', ta2: 'supercall' }
       
   test.done()
