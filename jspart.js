@@ -14,6 +14,52 @@ function patchBackbone (objects,methodname,f) {
     });
 }
 
+// "defaults" attribute inheritance, and automatic super.initialize calls
+function extend4000 () {
+    var args = Array.prototype.slice.call(arguments),
+    child = this;
+
+    var initf = [];
+  var defaults = {};
+  
+    if (child.prototype.defaults) {
+        defaults = _.clone(child.prototype.defaults);
+    }
+
+    _.each(args, function (superc) {
+        if (!superc) { throw "FAIL NO SUPERC" }
+
+        // did I receive a dictionary or an object/backbone model?
+        if (superc.prototype) { superc = superc.prototype; }
+
+        // inherit defaults
+        if (superc.defaults) {
+            defaults = _.extend(defaults,superc.defaults);
+        }
+
+        // build a list of initialize functions if you find more then one
+        if (superc.initialize) {
+            (initf.length) || initf.push(child.prototype.initialize);
+            initf.push(superc.initialize);
+        }
+
+        child = child.extend(superc);
+    });
+
+    // construct a combined init function
+    if (initf.length) {
+        child = child.extend({ initialize : function(attributes,options) {
+            var self = this;
+            _.map(initf,function(initf) { initf.call(self,attributes,options); });
+        }});
+    }
+    child.prototype.defaults = defaults;
+    return child;
+}
+
+// Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = extend4000
+
+
 function singleton () {
     newclass = this.extend4000.apply(this,arguments)
     return new newclass()
@@ -116,35 +162,37 @@ exports.PassiveCollection = PassiveCollection = function () {
 PassiveCollection.prototype = _.extend({},Backbone.Collection.prototype)
 
 
+
+
+
 // The super method takes two parameters: a method name
 // and an array of arguments to pass to the overridden method.
 // This is to optimize for the common case of passing 'arguments'.
-function _super(methodName, args) {
+function _super() {
+    var args = toArray(arguments)
+    var methodName = args.shift()
 
-  // Keep track of how far up the prototype chain we have traversed,
-  // in order to handle nested calls to _super.
-  this._superCallObjects || (this._superCallObjects = {});
-  var currentObject = this._superCallObjects[methodName] || this,
-      parentObject  = findSuper(methodName, currentObject);
-  this._superCallObjects[methodName] = parentObject;
+    // Keep track of how far up the prototype chain we have traversed,
+    // in order to handle nested calls to _super.
+    this._superCallObjects || (this._superCallObjects = {});
+    var currentObject = this._superCallObjects[methodName] || this,
+    parentObject  = findSuper(methodName, currentObject);
+    this._superCallObjects[methodName] = parentObject;
+//    console.log(methodName,args);
 
-  var result = parentObject[methodName].apply(this, args || []);
-  delete this._superCallObjects[methodName];
-  return result;
+    var result = parentObject[methodName].apply(this, args || []);
+    delete this._superCallObjects[methodName];
+    return result;
 }
 
 // Find the next object up the prototype chain that has a
 // different implementation of the method.
 function findSuper(methodName, childObject) {
-  var object = childObject;
-  while (object[methodName] === childObject[methodName]) {
-    object = object.constructor.__super__;
-  }
-  return object;
+    var object = childObject;
+    while (object[methodName] === childObject[methodName]) {
+        object = object.constructor.__super__;
+    }
+    return object;
 }
 
-_.each(["Model", "Collection", "View", "Router"], function(klass) {
-  Backbone[klass].prototype._super = _super;
-});
-
-
+patchBackbone(["Model", "Collection", "View", "Router"],'_super',_super)

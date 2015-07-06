@@ -3,30 +3,37 @@
   var backbone;
   backbone = require('./index');
   exports.basicExtend = function(test){
-    var A, a;
+    var res, A, a;
+    res = {};
     A = backbone.Model.extend4000({
       initialize: function(){
-        return console.log(1);
+        return res.a1 = 1;
       }
     }, {
       initialize: function(){
-        return console.log(2);
+        return res.a2 = 2;
       }
     }, {
       bla: 666
     });
     a = new A();
+    test.deepEqual(res, {
+      a1: 1,
+      a2: 2
+    });
+    test.equals(a.bla, 666);
     return test.done();
   };
-  exports.basicMetaClass = function(test){
-    var A, a;
+  exports.metaClass = function(test){
+    var res, A, a;
+    res = {};
     A = backbone.Model.extend4000({
       initialize: function(){
-        return console.log(1);
+        return res.a1 = 1;
       }
     }, {
       initialize: function(){
-        return console.log(2);
+        return res.a2 = 2;
       }
     }, {
       bla: 666
@@ -37,43 +44,84 @@
       }
     });
     a = new A();
+    test.deepEqual(res, {
+      a1: 1,
+      a2: 2
+    });
     test.equals(a.bla, 1332);
     return test.done();
   };
-  exports.init = function(test){
-    var A, B, C, c;
+  exports.inherit = function(test){
+    var res, A, B, b;
+    res = {};
+    A = backbone.Model.extend4000({
+      initialize: function(){
+        return res.a1 = 1;
+      }
+    });
+    B = A.extend4000({
+      initialize: function(){
+        return res.a2 = 2;
+      }
+    });
+    b = new B();
+    test.deepEqual(res, {
+      a1: 1,
+      a2: 2
+    });
+    return test.done();
+  };
+  exports.properSuper = function(test){
+    var res, A, B, C, c;
+    res = {};
     A = backbone.Model.extend4000({
       initialize: function(it){
-        return console.log('initargs', it);
+        res.a1 = it;
+        return res.a1bla = this.bla;
       },
-      testf: function(){
-        return console.log('testf a1');
+      testf: function(it){
+        return res.ta1 = it;
       }
     }, {
-      initialize: function(){
-        return console.log('getbla', this.bla);
+      initialize: function(it){
+        res.a2 = it;
+        return res.a2bla = this.bla;
       },
-      testf: function(){
-        return console.log('testf a2');
+      testf: function(it){
+        return res.ta2 = it;
       }
     });
     B = backbone.Model.extend4000({
-      initialize: function(){
-        return console.log("VALIDATOR", this.bla, this.get('bla'));
+      initialize: function(it){
+        return res.b1 = it;
       },
-      testf: function(){
-        console.log('testf b');
-        this._super(1, 2);
-        return 3;
+      testf: function(it){
+        res.tb = it;
+        return this._super('testf', 'supercall');
       }
     });
     C = A.extend4000(B, {
-      bla: 6
+      bla: 1
     });
     c = new C({
-      bla: 666
+      bla: 2
     });
-    console.log(c.testf());
+    c.testf('hi there');
+    test.deepEqual(res, {
+      b1: {
+        bla: 2
+      },
+      a1: {
+        bla: 2
+      },
+      a1bla: 1,
+      a2: {
+        bla: 2
+      },
+      a2bla: 1,
+      tb: 'hi there',
+      ta2: 'supercall'
+    });
     return test.done();
   };
 }).call(this);

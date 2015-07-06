@@ -1,61 +1,89 @@
 backbone = require './index'
   
 exports.basicExtend = (test) ->
+  res = {}
+  
   A = backbone.Model.extend4000(
-    { initialize: -> console.log 1 }
-    { initialize: -> console.log 2 }
+    { initialize: -> res.a1 = 1 }
+    { initialize: -> res.a2 = 2 }
     { bla: 666} )
     
   a = new A()
-    
+  
+  test.deepEqual res, { a1: 1, a2: 2 }
+  test.equals a.bla, 666
   test.done()
 
 
-exports.basicMetaClass = (test) ->
+exports.metaClass = (test) ->
+  res = {}
+  
   A = backbone.Model.extend4000(
-    { initialize: -> console.log 1 }
-    { initialize: -> console.log 2 }
+    { initialize: -> res.a1 = 1 }
+    { initialize: -> res.a2 = 2 }
     { bla: 666}
     { transformers: (cls) -> cls::bla *= 2; cls } )
-
+  
     
   a = new A()
-
+  test.deepEqual res, { a1: 1, a2: 2 }
   test.equals a.bla, 1332
   test.done()
 
+exports.inherit = (test) ->
+  res = {}
+  A = backbone.Model.extend4000(
+    initialize: -> res.a1 = 1)
 
-exports.init = (test) ->
+  B = A.extend4000(
+    initialize: -> res.a2 = 2)
+
+  b = new B()
+  test.deepEqual res, { a1: 1, a2: 2 }
+  
+  test.done()
+
+  
+exports.properSuper = (test) ->
+  res = {}
   A = backbone.Model.extend4000(
     {
-      initialize: -> console.log 'initargs', it
-      testf: -> console.log 'testf a1'
+      initialize: ->
+        res.a1 = it
+        res.a1bla = @bla
+        
+      testf: ->
+        res.ta1 = it
     },
     
     {
-      initialize: -> console.log 'getbla', @bla
-      testf: -> console.log 'testf a2'
+      initialize: ->
+        res.a2 = it
+        res.a2bla = @bla
+        
+      testf: ->
+        res.ta2 = it
     })
 
 
   B = backbone.Model.extend4000({
     initialize: ->
-      console.log "VALIDATOR", @bla, @get 'bla'
+      res.b1 = it
       
     testf: ->
-      console.log 'testf b'
-      @_super 1,2
-      return 3
+      res.tb = it
+      @_super 'testf', 'supercall'
   })
   
   C = A.extend4000( B, {
-    bla: 6
+    bla: 1
   })
 
+  c = new C bla: 2
+
+  c.testf('hi there')
 
 
-  c = new C bla: 666
-
-  console.log c.testf()
-  
+  test.deepEqual res, { b1: { bla: 2 }, a1: { bla: 2 }, a1bla: 1, a2: { bla: 2 }, a2bla: 1, tb: 'hi there', ta2: 'supercall' }
+      
   test.done()

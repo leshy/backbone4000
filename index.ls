@@ -8,14 +8,18 @@ require! {
 }
 
 Backbone = require './jspart'
+_.extend exports, Backbone
 
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
   classProperties = {}
 
   classes = _.map classes, (cls) ->
+    if not cls
+      console.log "one of my classes is empty, will throw:\n", classes
+      throw new Error 'extend4000 called with an empty class'
     if cls:: then return cls:: else cls
-
-  classes = h.unshift classes, @::
+      
+  #classes = h.unshift classes, @:: # THIS LINE HAS AN ISSUE
 
   classInherit = (attrName) ~>
     newAttr = h.filterFalse (_.flatten _.pluck classes, attrName)
@@ -24,11 +28,10 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
 
   # smart class join via mergers
   mergers = classInherit 'mergers'
-  _.map mergers, (merger) ~> h.pushm classes, merger.call @, classes
+  _.map mergers, (merger) ~> h.pushm classes, merger.call(@, classes.concat(@::))
 
   # merge all classes
   newClass = _.reduce classes, ((newClass,includeClass) ->
-    console.log 'extend with', includeClass
     newClass.extend includeClass), @
 
   # apply metaclass transformations
@@ -38,9 +41,8 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   # inherit class properties (mergers and transformers)
   newClass = newClass.extend {}, classProperties
 
+Backbone.Model::_super_ = (methodName, ...args) ->
 
-Backbone.Model::_super2 = (methodName, ...args) ->
-  
   findMethod = (methodName, target) ->
     console.log 'findMethod',methodName
     
@@ -50,9 +52,14 @@ Backbone.Model::_super2 = (methodName, ...args) ->
   
   searchTarget = (findMethod methodName, @).constructor.__super__ # find first one, and ignore it.
 
-  console.log 'found first one, looking for second', searchTarget
+  console.log 'found first one, looking for second'
   #findMethod(methodName, searchTarget)[methodName].apply @, args
   console.log findMethod(methodName, searchTarget)[methodName]
+
+
+    
+SubContext = Backbone.Model.extend4000( remove: -> @stopListening() )
+Backbone.Model::subContext = -> return new SubContext()
   
 
 
@@ -77,9 +84,6 @@ metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), (f1, f2
 metaMerger.mergeDict = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
 metaMerger.mergeDictDeep = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
 
-
-
-
 merger = exports.merger = {}
 
 merger.initialize = metaMerger.chainF 'initialize'
@@ -91,4 +95,3 @@ Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
 
 
 
-_.extend exports, Backbone
