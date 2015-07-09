@@ -41,22 +41,6 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   # inherit class properties (mergers and transformers)
   newClass = newClass.extend {}, classProperties
 
-Backbone.Model::_super_ = (methodName, ...args) ->
-
-  findMethod = (methodName, target) ->
-    console.log 'findMethod',methodName
-    
-    if target[methodName]?@@ is Function then target
-    else findMethod methodName, target.constructor.__super__
-
-  
-  searchTarget = (findMethod methodName, @).constructor.__super__ # find first one, and ignore it.
-
-  console.log 'found first one, looking for second'
-  #findMethod(methodName, searchTarget)[methodName].apply @, args
-  console.log findMethod(methodName, searchTarget)[methodName]
-
-
     
 SubContext = Backbone.Model.extend4000( remove: -> @stopListening() )
 Backbone.Model::subContext = -> return new SubContext()
@@ -90,8 +74,9 @@ merger.initialize = metaMerger.chainF 'initialize'
 merger.defaults = metaMerger.mergeDict 'defaults'
 merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
 
-Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
 
+Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
+Backbone.View.mergers = [ merger.initialize ]
 
 
 

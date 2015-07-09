@@ -42,22 +42,6 @@
     }, newClass);
     return newClass = newClass.extend({}, classProperties);
   };
-  Backbone.Model.prototype._super_ = function(methodName){
-    var args, findMethod, searchTarget;
-    args = slice$.call(arguments, 1);
-    findMethod = function(methodName, target){
-      var ref$;
-      console.log('findMethod', methodName);
-      if (((ref$ = target[methodName]) != null ? ref$.constructor : void 8) === Function) {
-        return target;
-      } else {
-        return findMethod(methodName, target.constructor.__super__);
-      }
-    };
-    searchTarget = findMethod(methodName, this).constructor.__super__;
-    console.log('found first one, looking for second');
-    return console.log(findMethod(methodName, searchTarget)[methodName]);
-  };
   SubContext = Backbone.Model.extend4000({
     remove: function(){
       return this.stopListening();
@@ -113,6 +97,7 @@
   merger.defaults = metaMerger.mergeDict('defaults');
   merger.deepDefaults = metaMerger.mergeDictDeep('defaults');
   Backbone.Model.mergers = [merger.initialize, merger.defaults];
+  Backbone.View.mergers = [merger.initialize];
   function curry$(f, bound){
     var context,
     _curry = function(args) {
