@@ -1,10 +1,12 @@
-backbone = require './index'
+Backbone = require './extras'
 util = require 'util'
+colors = require 'colors'
+h = require 'helpers'
   
 exports.basicExtend = (test) ->
   res = {}
   
-  A = backbone.Model.extend4000(
+  A = Backbone.Model.extend4000(
     { initialize: -> res.a1 = 1 }
     { initialize: -> res.a2 = 2 }
     { bla: 666} )
@@ -19,7 +21,7 @@ exports.basicExtend = (test) ->
 exports.metaClass = (test) ->
   res = {}
   
-  A = backbone.Model.extend4000(
+  A = Backbone.Model.extend4000(
     { initialize: -> res.a1 = 1 }
     { initialize: -> res.a2 = 2 }
     { bla: 666}
@@ -33,7 +35,7 @@ exports.metaClass = (test) ->
 
 exports.inherit = (test) ->
   res = {}
-  A = backbone.Model.extend4000(
+  A = Backbone.Model.extend4000(
     initialize: -> res.a1 = 1)
 
   B = A.extend4000(
@@ -47,7 +49,7 @@ exports.inherit = (test) ->
   
 exports.properSuperAndSuch = (test) ->
   res = {}
-  A = backbone.Model.extend4000(
+  A = Backbone.Model.extend4000(
     {
       initialize: ->
         res.a1 = it
@@ -67,7 +69,7 @@ exports.properSuperAndSuch = (test) ->
     })
 
 
-  B = backbone.Model.extend4000({
+  B = Backbone.Model.extend4000({
     initialize: ->
       res.b1 = it
       
@@ -89,4 +91,52 @@ exports.properSuperAndSuch = (test) ->
   console.log util.inspect res, colors: true
   test.deepEqual res, { c1: { bla: 2 }, b1: { bla: 2 }, a1: { bla: 2 }, a1bla: 1, a2: { bla: 2 }, a2bla: 1, tb: 'hi there', ta2: 'supercall' }
       
+  test.done()
+
+
+exports.collectionCollection = (test) ->
+  a = new Backbone.CollectionCollection()
+
+  events = {}
+  
+  event = (name,...data) ->
+    h.dictpush events,name,data
+    console.log.apply console, [ colors.green(name) ].concat data
+
+  a.on 'modelEvent', (...args) ->
+    event 'modelEvent', args
+    
+  a.on 'add', (cc) ->
+    event 'addCollection' cc.id
+
+
+    cc.on 'add', (model) ->
+      event 'addModelRaw', cc.id, model.id
+      
+    cc.on 'remove', (model) ->
+      event 'delModelRaw', cc.id, model.id
+
+
+  a.on 'remove', (elem) ->
+    test.equals elem.id, 'blu'
+    event 'removeCollection' elem.id
+        
+  a.add "bla", testModel1 = new Backbone.Model( id: 'testmodel1', bla: 3 )
+  a.add "bla", testModel2 = new Backbone.Model( id: 'testmodel2', bla: 4 )
+  a.add "blu", testModel3 = new Backbone.Model( id: 'testmodel3', blu: 1 )
+  testModel2.trigger "modelEvent", true, 3
+  a.remove "blu", testModel3
+  
+  #console.log util.inspect events, colors: true, depth: 3
+
+  test.deepEqual events, do
+    addCollection: [ [ 'bla' ], [ 'blu' ] ],
+    addModelRaw: [
+      [ 'bla', 'testmodel1' ],
+      [ 'bla', 'testmodel2' ],
+      [ 'blu', 'testmodel3' ] ],
+    modelEvent: [ [ [ true, 3 ] ] ],
+    delModelRaw: [ [ 'blu', 'testmodel3' ] ],
+    removeCollection: [ [ 'blu' ] ] 
+
   test.done()
