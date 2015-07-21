@@ -26,11 +26,6 @@ OrderedDict = exports.OrderedDict = Backbone.Model.extend4000 do
 
 
 
-CollectionWrapper = Backbone.Model.extend4000 do
-  initialize: -> 
-    if not @collection = @get 'collection' then @set collection: @collection = new Backbone.Collection()
-
-
 ChildCollection = Backbone.Model.extend4000 do
   initialize: (id) ->
     @cid = @id = id
@@ -41,19 +36,21 @@ ChildCollection = Backbone.Model.extend4000 do
   remove: (...args) -> @c.remove.apply @c, args
   
 CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend do
-
   add: (index, ...models) ->
     if not collection = @get(index)
       Backbone.Collection::add.call @, collection = new ChildCollection(index)
+      @listenTo collection, 'add', (model) ~> @trigger 'childAdd', model, collection
+      @listenTo collection, 'remove', (model) ~> @trigger 'childRemove', model, collection
       
     collection.add models
-    
+
   remove: (index, ...models) ->
     if not collection = @get(index) then throw new Error "no collection at #{index}"
     collection.remove models
     
     if not collection.length
       Backbone.Collection::remove.call @, collection, silent: true
+      @stopListening collection
       @trigger 'remove', collection
         
   

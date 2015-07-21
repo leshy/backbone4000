@@ -2,6 +2,7 @@ Backbone = require './extras'
 util = require 'util'
 colors = require 'colors'
 h = require 'helpers'
+_ = require 'underscore'
   
 exports.basicExtend = (test) ->
   res = {}
@@ -103,19 +104,27 @@ exports.collectionCollection = (test) ->
     h.dictpush events,name,data
     console.log.apply console, [ colors.green(name) ].concat data
 
-  a.on 'modelEvent', (...args) ->
-    event 'modelEvent', args
-    
+  a.on 'some_model_event', (...args) ->
+    event 'some_model_event', args
+
+  a.on 'childAdd', (model, collection) ->
+    event 'childAdd', collection.id, model.id
+
+  a.on 'childRemove', (model,collection) ->
+    event 'childRemove', collection.id, model.id
+
+  a.on 'change', (...args) ->
+    console.log 'change'
+    event 'change', true
+        
   a.on 'add', (cc) ->
     event 'addCollection' cc.id
-
-
+    
     cc.on 'add', (model) ->
-      event 'addModelRaw', cc.id, model.id
+      event 'addModel', cc.id, model.id
       
     cc.on 'remove', (model) ->
-      event 'delModelRaw', cc.id, model.id
-
+      event 'delModel', cc.id, model.id
 
   a.on 'remove', (elem) ->
     test.equals elem.id, 'blu'
@@ -124,11 +133,13 @@ exports.collectionCollection = (test) ->
   a.add "bla", testModel1 = new Backbone.Model( id: 'testmodel1', bla: 3 )
   a.add "bla", testModel2 = new Backbone.Model( id: 'testmodel2', bla: 4 )
   a.add "blu", testModel3 = new Backbone.Model( id: 'testmodel3', blu: 1 )
-  testModel2.trigger "modelEvent", true, 3
+  testModel2.trigger "some_model_event", true, 3
   a.remove "blu", testModel3
   
-  #console.log util.inspect events, colors: true, depth: 3
-
+  console.log util.inspect a, colors: true, depth: 3
+  
+  return test.done()
+  
   test.deepEqual events, do
     addCollection: [ [ 'bla' ], [ 'blu' ] ],
     addModelRaw: [
