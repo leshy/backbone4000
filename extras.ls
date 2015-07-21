@@ -44,10 +44,12 @@ CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend
       @listenTo collection, 'add', (model) ~>
         @totalLength++
         @trigger 'childAdd', model, collection
+        @trigger 'change', 'add', model, collection
         
       @listenTo collection, 'remove', (model) ~>
         @totalLength--
         @trigger 'childRemove', model, collection
+        @trigger 'change', 'remove', model, collection
       
     collection.add models
 

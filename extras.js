@@ -63,11 +63,13 @@
         Backbone.Collection.prototype.add.call(this, collection = new ChildCollection(index));
         this.listenTo(collection, 'add', function(model){
           this$.totalLength++;
-          return this$.trigger('childAdd', model, collection);
+          this$.trigger('childAdd', model, collection);
+          return this$.trigger('change', 'add', model, collection);
         });
         this.listenTo(collection, 'remove', function(model){
           this$.totalLength--;
-          return this$.trigger('childRemove', model, collection);
+          this$.trigger('childRemove', model, collection);
+          return this$.trigger('change', 'remove', model, collection);
         });
       }
       return collection.add(models);

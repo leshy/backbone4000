@@ -114,7 +114,6 @@ exports.collectionCollection = (test) ->
     event 'childRemove', collection.id, model.id
 
   a.on 'change', (...args) ->
-    console.log 'change'
     event 'change', true
         
   a.on 'add', (cc) ->
@@ -152,6 +151,7 @@ exports.collectionCollection = (test) ->
      [ [ 'bla', 'testmodel1' ],
        [ 'bla', 'testmodel2' ],
        [ 'blu', 'testmodel3' ] ],
+    change: [ [ true ], [ true ], [ true ], [ true ] ],
     some_model_event: [ [ [ true, 3 ] ] ],
     delModel: [ [ 'blu', 'testmodel3' ] ],
     childRemove: [ [ 'blu', 'testmodel3' ] ],

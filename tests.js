@@ -161,7 +161,6 @@
     a.on('change', function(){
       var args;
       args = slice$.call(arguments);
-      console.log('change');
       return event('change', true);
     });
     a.on('add', function(cc){
@@ -197,6 +196,7 @@
       addCollection: [['bla'], ['blu']],
       addModel: [['bla', 'testmodel1'], ['bla', 'testmodel2'], ['blu', 'testmodel3']],
       childAdd: [['bla', 'testmodel1'], ['bla', 'testmodel2'], ['blu', 'testmodel3']],
+      change: [[true], [true], [true], [true]],
       some_model_event: [[[true, 3]]],
       delModel: [['blu', 'testmodel3']],
       childRemove: [['blu', 'testmodel3']],
