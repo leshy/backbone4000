@@ -189,18 +189,17 @@
       id: 'testmodel3',
       blu: 1
     }));
+    test.equals(a.totalLength, 3);
     testModel2.trigger("some_model_event", true, 3);
     a.remove("blu", testModel3);
-    console.log(util.inspect(a, {
-      colors: true,
-      depth: 3
-    }));
-    return test.done();
+    test.equals(a.totalLength, 2);
     test.deepEqual(events, {
       addCollection: [['bla'], ['blu']],
-      addModelRaw: [['bla', 'testmodel1'], ['bla', 'testmodel2'], ['blu', 'testmodel3']],
-      modelEvent: [[[true, 3]]],
-      delModelRaw: [['blu', 'testmodel3']],
+      addModel: [['bla', 'testmodel1'], ['bla', 'testmodel2'], ['blu', 'testmodel3']],
+      childAdd: [['bla', 'testmodel1'], ['bla', 'testmodel2'], ['blu', 'testmodel3']],
+      some_model_event: [[[true, 3]]],
+      delModel: [['blu', 'testmodel3']],
+      childRemove: [['blu', 'testmodel3']],
       removeCollection: [['blu']]
     });
     return test.done();

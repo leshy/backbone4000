@@ -36,11 +36,18 @@ ChildCollection = Backbone.Model.extend4000 do
   remove: (...args) -> @c.remove.apply @c, args
   
 CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend do
+  totalLength: 0
+  
   add: (index, ...models) ->
     if not collection = @get(index)
       Backbone.Collection::add.call @, collection = new ChildCollection(index)
-      @listenTo collection, 'add', (model) ~> @trigger 'childAdd', model, collection
-      @listenTo collection, 'remove', (model) ~> @trigger 'childRemove', model, collection
+      @listenTo collection, 'add', (model) ~>
+        @totalLength++
+        @trigger 'childAdd', model, collection
+        
+      @listenTo collection, 'remove', (model) ~>
+        @totalLength--
+        @trigger 'childRemove', model, collection
       
     collection.add models
 

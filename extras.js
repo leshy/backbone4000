@@ -55,15 +55,18 @@
     }
   });
   CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend({
+    totalLength: 0,
     add: function(index){
       var models, collection, this$ = this;
       models = slice$.call(arguments, 1);
       if (!(collection = this.get(index))) {
         Backbone.Collection.prototype.add.call(this, collection = new ChildCollection(index));
         this.listenTo(collection, 'add', function(model){
+          this$.totalLength++;
           return this$.trigger('childAdd', model, collection);
         });
         this.listenTo(collection, 'remove', function(model){
+          this$.totalLength--;
           return this$.trigger('childRemove', model, collection);
         });
       }
