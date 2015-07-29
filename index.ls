@@ -1,7 +1,5 @@
 #!/usr/bin/lsc
 
-{ map, fold1, keys, values, first, flatten } = require 'prelude-ls'
-
 require! {
   underscore: _
   helpers: h
