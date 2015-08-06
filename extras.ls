@@ -7,6 +7,9 @@ Backbone = require './index'
 
 _.extend exports, Backbone
 
+#
+# wait, this could be replaces by the vanilla backbone collection? it supports sorting
+# 
 OrderedDict = exports.OrderedDict = Backbone.Model.extend4000 do
 
   # avoid bb model init attribute setting
@@ -26,6 +29,10 @@ OrderedDict = exports.OrderedDict = Backbone.Model.extend4000 do
 
 
 
+#
+# collection that holds other collections. this is so dumb, should be supported by default to arbitrary depth
+# should play with backbone.model that inherits from the collection to achieve this
+# 
 ChildCollection = Backbone.Model.extend4000 do
   initialize: (id) ->
     @cid = @id = id
@@ -63,3 +70,30 @@ CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend
       @trigger 'remove', collection
         
   
+
+# hasTag(tags...)
+# hasTagOr(tags...)
+# addtag(tags...)
+# deltag(tags...)
+Tagged = exports.Tagged = Backbone.Model.extend4000 do
+    # will create a new tags object for this particular state instance.
+    forktags: -> if @constructor::tags is @tags then @tags = (@tags?.concat []) or []
+
+    delTag: (tag) ->
+        @forktags()
+        delete @tags[tag]
+        @trigger 'changetag', 'del', tag
+        @trigger 'deltag', tag
+        @trigger 'deltag:' + tag
+
+    addTag: (tag) ->
+        @forktags()
+        @tags[tag] = true
+        @trigger 'changetag', 'add', tag
+        @trigger 'addtag', tag
+        @trigger 'addtag:' + tag
+
+    hasTag: (...tags) ->
+        not _.find(tags, (tag) ~> not @tags[tag])
+
+    hasTagOr: (...tags) -> _.find _.keys(@tags), (tag) -> tag in tags

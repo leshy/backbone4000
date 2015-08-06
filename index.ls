@@ -16,8 +16,6 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
       console.log "one of my classes is empty, will throw:\n", classes
       throw new Error 'extend4000 called with an empty class'
     if cls:: then return cls:: else cls
-      
-  #classes = h.unshift classes, @:: # THIS LINE HAS AN ISSUE
 
   classInherit = (attrName) ~>
     newAttr = h.filterFalse (_.flatten _.pluck classes, attrName)
