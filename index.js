@@ -50,12 +50,17 @@
     return new SubContext();
   };
   metaMerger = exports.metaMerger = {};
-  metaMerger.mergeAttribute = curry$(function(validate, join, name){
+  metaMerger.merge = curry$(function(fifo, validate, join, attrName){
     return function(classes){
-      var joinedAttribute, ret;
-      joinedAttribute = _.reduce(classes, function(joined, cls){
+      var iter, joinedAttribute, ret;
+      if (fifo) {
+        iter = _.reduceRight;
+      } else {
+        iter = _.reduce;
+      }
+      joinedAttribute = iter(classes, function(joined, cls){
         var attr;
-        attr = cls[name];
+        attr = cls[attrName];
         if (!validate || validate(attr)) {
           if (joined) {
             return join(joined, attr);
@@ -68,11 +73,14 @@
       }, void 8);
       if (joinedAttribute) {
         ret = {};
-        ret[name] = joinedAttribute;
+        ret[attrName] = joinedAttribute;
         return ret;
       } else {}
     };
   });
+  metaMerger.mergeAttribute = metaMerger.merge(false);
+  metaMerger.mergeAttributeFifo = metaMerger.merge(true);
+  metaMerger.mergeAttributeLifo = metaMerger.merge(false);
   metaMerger.chainF = metaMerger.mergeAttribute(function(f){
     return (f != null ? f.constructor : void 8) === Function;
   }, function(f1, f2){
@@ -81,12 +89,12 @@
       return f1.apply(this, arguments);
     };
   });
-  metaMerger.mergeDict = metaMerger.mergeAttribute(function(d){
+  metaMerger.mergeDict = metaMerger.mergeAttributeFifo(function(d){
     return (d != null ? d.constructor : void 8) === Object;
   }, function(d1, d2){
     return _.extend({}, d1, d2);
   });
-  metaMerger.mergeDictDeep = metaMerger.mergeAttribute(function(d){
+  metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo(function(d){
     return (d != null ? d.constructor : void 8) === Object;
   }, function(d1, d2){
     return h.extend(d1, d2);

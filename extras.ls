@@ -77,23 +77,28 @@ CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend
 # deltag(tags...)
 Tagged = exports.Tagged = Backbone.Model.extend4000 do
     # will create a new tags object for this particular state instance.
-    forktags: -> if @constructor::tags is @tags then @tags = (@tags?.concat []) or []
+    forktags: ->
+      if @constructor::tags is @tags
+        if @tags then @tags = _.extend {}, @tags else @tags = {}
 
     delTag: (tag) ->
         @forktags()
         delete @tags[tag]
-        @trigger 'changetag', 'del', tag
-        @trigger 'deltag', tag
-        @trigger 'deltag:' + tag
+        @trigger 'changeTag', 'del', tag
+        @trigger 'delTag', tag
+        @trigger 'delTag:' + tag
 
     addTag: (tag) ->
         @forktags()
         @tags[tag] = true
-        @trigger 'changetag', 'add', tag
-        @trigger 'addtag', tag
-        @trigger 'addtag:' + tag
+        @trigger 'changeTag', 'add', tag
+        @trigger 'addTag', tag
+        @trigger 'addTag:' + tag
+
+    addTags: (...tags) ->
+      _.each tags, ~> @addTag it
 
     hasTag: (...tags) ->
-        not _.find(tags, (tag) ~> not @tags[tag])
+      not _.find(tags, (tag) ~> not @tags[tag])
 
     hasTagOr: (...tags) -> _.find _.keys(@tags), (tag) -> tag in tags

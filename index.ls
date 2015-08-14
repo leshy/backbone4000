@@ -1,5 +1,4 @@
 #!/usr/bin/lsc
-
 require! {
   underscore: _
   helpers: h
@@ -40,29 +39,31 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
     
 SubContext = Backbone.Model.extend4000( remove: -> @stopListening() )
 Backbone.Model::subContext = -> return new SubContext()
-  
-
 
 metaMerger = exports.metaMerger = {}
 
-metaMerger.mergeAttribute = (validate,join,name) -->
+metaMerger.merge = (fifo, validate, join, attrName) -->
   (classes) ->
-    joinedAttribute = _.reduce classes, ((joined, cls) ->
-      attr = cls[name]
+    if fifo then iter = _.reduceRight else iter = _.reduce
+    joinedAttribute = iter classes, ((joined, cls) ->
+      attr = cls[attrName]
       if not validate or validate attr
         if joined then join(joined, attr) else attr
       else joined), void
 
     if joinedAttribute
-#      ret = { name: 'j_' + name }
       ret = {}
-      ret[name] = joinedAttribute
+      ret[attrName] = joinedAttribute
       ret
     else void
 
-metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), (f1, f2) -> -> f2(...); f1(...)
-metaMerger.mergeDict = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
-metaMerger.mergeDictDeep = metaMerger.mergeAttribute ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
+metaMerger.mergeAttribute = metaMerger.merge false
+metaMerger.mergeAttributeFifo = metaMerger.merge true
+metaMerger.mergeAttributeLifo = metaMerger.merge false
+
+metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), ((f1, f2) -> -> f2(...); f1(...))
+metaMerger.mergeDict = metaMerger.mergeAttributeFifo ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
+metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
 
 merger = exports.merger = {}
 
@@ -72,6 +73,5 @@ merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
 
 Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
 Backbone.View.mergers = [ merger.initialize ]
-
 
 

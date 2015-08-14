@@ -92,24 +92,34 @@
   });
   Tagged = exports.Tagged = Backbone.Model.extend4000({
     forktags: function(){
-      var ref$;
       if (this.constructor.prototype.tags === this.tags) {
-        return this.tags = ((ref$ = this.tags) != null ? ref$.concat([]) : void 8) || [];
+        if (this.tags) {
+          return this.tags = _.extend({}, this.tags);
+        } else {
+          return this.tags = {};
+        }
       }
     },
     delTag: function(tag){
       this.forktags();
       delete this.tags[tag];
-      this.trigger('changetag', 'del', tag);
-      this.trigger('deltag', tag);
-      return this.trigger('deltag:' + tag);
+      this.trigger('changeTag', 'del', tag);
+      this.trigger('delTag', tag);
+      return this.trigger('delTag:' + tag);
     },
     addTag: function(tag){
       this.forktags();
       this.tags[tag] = true;
-      this.trigger('changetag', 'add', tag);
-      this.trigger('addtag', tag);
-      return this.trigger('addtag:' + tag);
+      this.trigger('changeTag', 'add', tag);
+      this.trigger('addTag', tag);
+      return this.trigger('addTag:' + tag);
+    },
+    addTags: function(){
+      var tags, this$ = this;
+      tags = slice$.call(arguments);
+      return _.each(tags, function(it){
+        return this$.addTag(it);
+      });
     },
     hasTag: function(){
       var tags, this$ = this;
