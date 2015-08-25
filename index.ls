@@ -56,23 +56,21 @@ metaMerger.merge = (options, attrName) -->
       ret = {}
       ret[attrName] = joinedAttribute   
       # postprocessing?
-      if postJoin then postJoin ret
+      if postJoin then postJoin ret, attrName, options
       else ret
     else void
 
 metaMerger.mergeAttribute = metaMerger.mergeAttributeLifo = h.dCurry metaMerger.merge, fifo: false
 metaMerger.mergeAttributeFifo = h.dCurry metaMerger.merge, fifo: true
 
-metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))
-metaMerger.chainFnext = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))
-  
+metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
 
 metaMerger.mergeDict = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
 metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
 
 merger = exports.merger = {}
 
-merger.initialize = metaMerger.chainF 'initialize'
+merger.initialize = metaMerger.chainFpost 'initialize'
 merger.defaults = metaMerger.mergeDict 'defaults'
 merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
 

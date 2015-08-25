@@ -76,7 +76,7 @@
         ret = {};
         ret[attrName] = joinedAttribute;
         if (postJoin) {
-          return postJoin(ret);
+          return postJoin(ret, attrName, options);
         } else {
           return ret;
         }
@@ -90,17 +90,6 @@
     fifo: true
   });
   metaMerger.chainF = metaMerger.mergeAttribute({
-    check: function(f){
-      return (f != null ? f.constructor : void 8) === Function;
-    },
-    join: function(f1, f2){
-      return function(){
-        f2.apply(this, arguments);
-        return f1.apply(this, arguments);
-      };
-    }
-  });
-  metaMerger.chainFnext = metaMerger.mergeAttribute({
     check: function(f){
       return (f != null ? f.constructor : void 8) === Function;
     },
@@ -128,7 +117,7 @@
     }
   });
   merger = exports.merger = {};
-  merger.initialize = metaMerger.chainF('initialize');
+  merger.initialize = metaMerger.chainFpost('initialize');
   merger.defaults = metaMerger.mergeDict('defaults');
   merger.deepDefaults = metaMerger.mergeDictDeep('defaults');
   Backbone.Model.mergers = [merger.initialize, merger.defaults];
