@@ -70,7 +70,7 @@ metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is 
 
 merger = exports.merger = {}
 
-merger.initialize = metaMerger.chainFpost 'initialize'
+merger.initialize = metaMerger.chainF 'initialize'
 merger.defaults = metaMerger.mergeDict 'defaults'
 merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
 

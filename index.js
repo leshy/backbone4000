@@ -117,7 +117,7 @@
     }
   });
   merger = exports.merger = {};
-  merger.initialize = metaMerger.chainFpost('initialize');
+  merger.initialize = metaMerger.chainF('initialize');
   merger.defaults = metaMerger.mergeDict('defaults');
   merger.deepDefaults = metaMerger.mergeDictDeep('defaults');
   Backbone.Model.mergers = [merger.initialize, merger.defaults];
