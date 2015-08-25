@@ -68,8 +68,6 @@ CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend
       Backbone.Collection::remove.call @, collection, silent: true
       @stopListening collection
       @trigger 'remove', collection
-        
-  
 
 # hasTag(tags...)
 # hasTagOr(tags...)
@@ -95,10 +93,17 @@ Tagged = exports.Tagged = Backbone.Model.extend4000 do
         @trigger 'addTag', tag
         @trigger 'addTag:' + tag
 
+    changeTags: (...tags) ->
+      @forktags()
+      tags = _.flatten tags
+      ...
+      
     addTags: (...tags) ->
+      tags = _.flatten tags
       _.each tags, ~> @addTag it
 
     hasTag: (...tags) ->
+      tags = _.flatten tags
       not _.find(tags, (tag) ~> not @tags[tag])
 
     hasTagOr: (...tags) -> _.find _.keys(@tags), (tag) -> tag in tags

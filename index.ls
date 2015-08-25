@@ -42,28 +42,33 @@ Backbone.Model::subContext = -> return new SubContext()
 
 metaMerger = exports.metaMerger = {}
 
-metaMerger.merge = (fifo, validate, join, attrName) -->
+metaMerger.merge = (options, attrName) --> 
   (classes) ->
-    if fifo then iter = _.reduceRight else iter = _.reduce
-    joinedAttribute = iter classes, ((joined, cls) ->
+    { fifo, check, join, postJoin } = options
+    if fifo then reduce = _.reduceRight else reduce = _.reduce
+    joinedAttribute = reduce classes, ((joined, cls) ->
       attr = cls[attrName]
-      if not validate or validate attr
+      if not check or check attr
         if joined then join(joined, attr) else attr
       else joined), void
 
     if joinedAttribute
       ret = {}
-      ret[attrName] = joinedAttribute
-      ret
+      ret[attrName] = joinedAttribute   
+      # postprocessing?
+      if postJoin then postJoin ret
+      else ret
     else void
 
-metaMerger.mergeAttribute = metaMerger.merge false
-metaMerger.mergeAttributeFifo = metaMerger.merge true
-metaMerger.mergeAttributeLifo = metaMerger.merge false
+metaMerger.mergeAttribute = metaMerger.mergeAttributeLifo = h.dCurry metaMerger.merge, fifo: false
+metaMerger.mergeAttributeFifo = h.dCurry metaMerger.merge, fifo: true
 
-metaMerger.chainF = metaMerger.mergeAttribute ((f) -> f?@@ is Function), ((f1, f2) -> -> f2(...); f1(...))
-metaMerger.mergeDict = metaMerger.mergeAttributeFifo ((d) -> d?@@ is Object), (d1, d2) -> _.extend {}, d1, d2
-metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo ((d) -> d?@@ is Object), (d1, d2) -> h.extend d1, d2
+metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))
+metaMerger.chainFnext = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))
+  
+
+metaMerger.mergeDict = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
+metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
 
 merger = exports.merger = {}
 

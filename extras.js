@@ -114,9 +114,17 @@
       this.trigger('addTag', tag);
       return this.trigger('addTag:' + tag);
     },
+    changeTags: function(){
+      var tags;
+      tags = slice$.call(arguments);
+      this.forktags();
+      tags = _.flatten(tags);
+      throw Error('unimplemented');
+    },
     addTags: function(){
       var tags, this$ = this;
       tags = slice$.call(arguments);
+      tags = _.flatten(tags);
       return _.each(tags, function(it){
         return this$.addTag(it);
       });
@@ -124,6 +132,7 @@
     hasTag: function(){
       var tags, this$ = this;
       tags = slice$.call(arguments);
+      tags = _.flatten(tags);
       return !_.find(tags, function(tag){
         return !this$.tags[tag];
       });
