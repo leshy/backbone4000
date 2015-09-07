@@ -153,12 +153,16 @@
     }
   });
   AttrTagged = exports.AttrTagged = Tagged.extend4000({
-    initialize: function(){
-      return this.tags = this.get('tags');
-    },
     forktags: function(){
       this.tags = this.get('tags');
-      return this.touch('tags');
+      if (!this.tags) {
+        this.set({
+          tags: this.tags = {}
+        });
+      }
+      if (this.touch) {
+        return this.touch('tags');
+      }
     }
   });
   function in$(x, xs){
