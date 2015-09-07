@@ -42,10 +42,11 @@ Backbone.Model::subContext = -> return new SubContext()
 
 metaMerger = exports.metaMerger = {}
 
-metaMerger.merge = (options, attrName) --> 
+metaMerger.iterative = (options, attrName) --> 
   (classes) ->
-    { fifo, check, join, postJoin } = options
-    if fifo then reduce = _.reduceRight else reduce = _.reduce
+    { right = false, check, join, postJoin } = options
+    if right then reduce = _.reduceRight else reduce = _.reduce
+      
     joinedAttribute = reduce classes, ((joined, cls) ->
       attr = cls[attrName]
       if not check or check attr
@@ -58,15 +59,17 @@ metaMerger.merge = (options, attrName) -->
       # postprocessing?
       if postJoin then postJoin ret, attrName, options
       else ret
+      
     else void
 
-metaMerger.mergeAttribute = metaMerger.mergeAttributeLifo = h.dCurry metaMerger.merge, fifo: false
-metaMerger.mergeAttributeFifo = h.dCurry metaMerger.merge, fifo: true
+
+metaMerger.mergeAttributeLeft = metaMerger.mergeAttribute = metaMerger.iterative
+metaMerger.mergeAttributeRight = h.dCurry metaMerger.iterative, right: true
 
 metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
 
-metaMerger.mergeDict = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
-metaMerger.mergeDictDeep = metaMerger.mergeAttributeFifo check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
+metaMerger.mergeDict = metaMerger.mergeAttributeRight check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
+metaMerger.mergeDictDeep = metaMerger.mergeAttributeRight check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
 
 merger = exports.merger = {}
 

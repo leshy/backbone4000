@@ -81,17 +81,19 @@ Tagged = exports.Tagged = Backbone.Model.extend4000 do
 
     delTag: (tag) ->
         @forktags()
+        data = @tags[tag]
         delete @tags[tag]
-        @trigger 'changeTag', 'del', tag
-        @trigger 'delTag', tag
-        @trigger 'delTag:' + tag
+        @trigger 'changeTag', 'del', tag, data
+        @trigger 'delTag', tag, data
+        @trigger 'delTag:' + tag, data
 
-    addTag: (tag) ->
+    addTag: (tag, data = true) ->
+        if @hasTag[tag] then return
         @forktags()
-        @tags[tag] = true
-        @trigger 'changeTag', 'add', tag
-        @trigger 'addTag', tag
-        @trigger 'addTag:' + tag
+        @tags[tag] = data
+        @trigger 'changeTag', 'add', tag, data
+        @trigger 'addTag', tag, data
+        @trigger 'addTag:' + tag, data
 
     changeTags: (...tags) ->
       @forktags()
@@ -104,6 +106,16 @@ Tagged = exports.Tagged = Backbone.Model.extend4000 do
 
     hasTag: (...tags) ->
       tags = _.flatten tags
-      not _.find(tags, (tag) ~> not @tags[tag])
+      not _.find(tags, (tag) ~> not @tags?[tag])
 
     hasTagOr: (...tags) -> _.find _.keys(@tags), (tag) -> tag in tags
+
+# like tagged but keeps its tags in @attributes
+AttrTagged = exports.AttrTagged = Tagged.extend4000 do
+  initialize: ->
+    @tags = @get 'tags'
+    
+  forktags: ->
+    @tags = @get 'tags'
+    @touch 'tags'
+
