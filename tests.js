@@ -77,6 +77,7 @@
   };
   exports.properSuperAndSuch = function(test){
     var res, A, B, C, c;
+    return test.done();
     res = {};
     A = Backbone.Model.extend4000({
       initialize: function(it){
@@ -202,6 +203,51 @@
       childRemove: [['blu', 'testmodel3']],
       removeCollection: [['blu']]
     });
+    return test.done();
+  };
+  exports.mergers = function(test){
+    var res, testA, A, B, C, c;
+    res = {};
+    testA = [];
+    A = Backbone.Model.extend4000({
+      initialize: function(){
+        return testA.push('i1');
+      },
+      test: function(){
+        testA.push('1');
+        return this.x = 1;
+      }
+    });
+    A.mergers.push(Backbone.metaMerger.chainFRight('test'));
+    B = A.extend4000({
+      initialize: function(){
+        return testA.push('i2');
+      },
+      test: function(){
+        testA.push('2');
+        return this.x = 2;
+      }
+    }, {
+      initialize: function(){
+        return testA.push('i3');
+      },
+      test: function(){
+        testA.push('3');
+        return this.x = 3;
+      }
+    });
+    C = B.extend4000({
+      initialize: function(){
+        return testA.push('i4');
+      },
+      test: function(){
+        testA.push('4');
+        return this.x = 4;
+      }
+    });
+    c = new C();
+    c.test();
+    test.deepEqual(testA, ['i1', 'i2', 'i3', 'i4', '4', '3', '2', '1']);
     return test.done();
   };
 }).call(this);

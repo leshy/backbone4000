@@ -9,10 +9,14 @@
     var classes, classProperties, classInherit, mergers, newClass, transformers, this$ = this;
     classes = slice$.call(arguments);
     classProperties = {};
+    classes.reverse();
     classes = _.map(classes, function(cls){
+      var err;
       if (!cls) {
         console.log("one of my classes is empty, will throw:\n", classes);
-        throw new Error('extend4000 called with an empty class');
+        err = new Error('extend4000 called with an empty class');
+        console.log(err.stack);
+        throw err;
       }
       if (cls.prototype) {
         return cls.prototype;
@@ -52,14 +56,14 @@
   metaMerger = exports.metaMerger = {};
   metaMerger.iterative = curry$(function(options, attrName){
     return function(classes){
-      var right, ref$, check, join, postJoin, reduce, joinedAttribute, ret;
+      var right, ref$, check, join, postJoin, iterF, joinedAttribute, ret;
       right = (ref$ = options.right) != null ? ref$ : false, check = options.check, join = options.join, postJoin = options.postJoin;
       if (right) {
-        reduce = _.reduceRight;
+        iterF = _.reduceRight;
       } else {
-        reduce = _.reduce;
+        iterF = _.reduce;
       }
-      joinedAttribute = reduce(classes, function(joined, cls){
+      joinedAttribute = iterF(classes, function(joined, cls){
         var attr;
         attr = cls[attrName];
         if (!check || check(attr)) {
@@ -84,9 +88,6 @@
     };
   });
   metaMerger.mergeAttributeLeft = metaMerger.mergeAttribute = metaMerger.iterative;
-  metaMerger.mergeAttributeRight = h.dCurry(metaMerger.iterative, {
-    right: true
-  });
   metaMerger.chainF = metaMerger.mergeAttribute({
     check: function(f){
       return (f != null ? f.constructor : void 8) === Function;
@@ -98,7 +99,20 @@
       };
     }
   });
-  metaMerger.mergeDict = metaMerger.mergeAttributeRight({
+  metaMerger.chainFRight = metaMerger.mergeAttribute({
+    right: true,
+    check: function(f){
+      return (f != null ? f.constructor : void 8) === Function;
+    },
+    join: function(f1, f2){
+      return function(){
+        f2.apply(this, arguments);
+        return f1.apply(this, arguments);
+      };
+    }
+  });
+  metaMerger.mergeDict = metaMerger.mergeAttribute({
+    right: true,
     check: function(d){
       return (d != null ? d.constructor : void 8) === Object;
     },
@@ -106,7 +120,8 @@
       return _.extend({}, d1, d2);
     }
   });
-  metaMerger.mergeDictDeep = metaMerger.mergeAttributeRight({
+  metaMerger.mergeDictDeep = metaMerger.mergeAttribute({
+    right: true,
     check: function(d){
       return (d != null ? d.constructor : void 8) === Object;
     },

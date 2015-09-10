@@ -9,11 +9,13 @@ _.extend exports, Backbone
 
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
   classProperties = {}
-
+  classes.reverse()
   classes = _.map classes, (cls) ->
     if not cls
       console.log "one of my classes is empty, will throw:\n", classes
-      throw new Error 'extend4000 called with an empty class'
+      err = new Error 'extend4000 called with an empty class'
+      console.log err.stack
+      throw err
     if cls:: then return cls:: else cls
 
   classInherit = (attrName) ~>
@@ -42,12 +44,12 @@ Backbone.Model::subContext = -> return new SubContext()
 
 metaMerger = exports.metaMerger = {}
 
-metaMerger.iterative = (options, attrName) --> 
+metaMerger.iterative = (options, attrName) -->
   (classes) ->
     { right = false, check, join, postJoin } = options
-    if right then reduce = _.reduceRight else reduce = _.reduce
+    if right then iterF = _.reduceRight else iterF = _.reduce
       
-    joinedAttribute = reduce classes, ((joined, cls) ->
+    joinedAttribute = iterF classes, ((joined, cls) ->
       attr = cls[attrName]
       if not check or check attr
         if joined then join(joined, attr) else attr
@@ -64,12 +66,12 @@ metaMerger.iterative = (options, attrName) -->
 
 
 metaMerger.mergeAttributeLeft = metaMerger.mergeAttribute = metaMerger.iterative
-metaMerger.mergeAttributeRight = h.dCurry metaMerger.iterative, right: true
 
 metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
+metaMerger.chainFRight = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
 
-metaMerger.mergeDict = metaMerger.mergeAttributeRight check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
-metaMerger.mergeDictDeep = metaMerger.mergeAttributeRight check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
+metaMerger.mergeDict = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
+metaMerger.mergeDictDeep = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
 
 merger = exports.merger = {}
 

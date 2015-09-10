@@ -19,6 +19,7 @@ exports.basicExtend = (test) ->
   test.done()
 
 
+
 exports.metaClass = (test) ->
   res = {}
   
@@ -49,7 +50,9 @@ exports.inherit = (test) ->
 
   
 exports.properSuperAndSuch = (test) ->
+  return test.done()
   res = {}
+  
   A = Backbone.Model.extend4000(
     {
       initialize: ->
@@ -157,3 +160,42 @@ exports.collectionCollection = (test) ->
     childRemove: [ [ 'blu', 'testmodel3' ] ],
     removeCollection: [ [ 'blu' ] ]
   test.done()
+
+
+
+
+
+exports.mergers = (test) ->
+  res = {}
+
+  testA = []
+    
+  A = Backbone.Model.extend4000 do
+      initialize: ->
+        testA.push 'i1'
+      test: -> testA.push '1'; @x = 1
+      
+  A.mergers.push Backbone.metaMerger.chainFRight 'test'
+
+  B = A.extend4000(
+    {
+      initialize: -> testA.push 'i2'
+      test: -> testA.push '2'; @x = 2
+    },
+    
+    {
+      initialize: -> testA.push 'i3'
+      test: -> testA.push '3'; @x = 3
+    })
+
+  C = B.extend4000 do
+    initialize: -> testA.push 'i4'
+    test: -> testA.push '4'; @x = 4
+
+
+  c = new C()
+  c.test()
+  test.deepEqual testA, [ 'i1', 'i2', 'i3', 'i4', '4', '3', '2', '1' ]
+#  test.equals c.x, 1
+  test.done()
+
