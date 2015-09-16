@@ -68,7 +68,7 @@
       if (obj.jquery == null) {
         obj[implementation](name, callback, this);
       } else {
-        if (implementation === 'on') {
+        if (implementation === 'once') {
           implementation = 'one';
         }
         obj[implementation](name, callback);

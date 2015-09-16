@@ -253,22 +253,35 @@
   };
   exports.listenToJquery = function(test){
     return require('jsdom').env('<html><body><h1>hi there</h1></body></html>', function(error, window){
-      var $, a, cnt;
+      var $, model, once, cnt, h1;
       $ = require('jquery')(window);
-      a = new Backbone.Model();
+      model = new Backbone.Model();
+      once = false;
       cnt = 0;
-      a.listenTo($('h1'), 'click', function(){
+      h1 = $('h1');
+      model.listenTo(h1, 'click', function(el, event){
         cnt = cnt + 1;
-        test.equals(cnt, 1);
-        a.stopListening();
-        $('h1').trigger('click', {
-          some: 'data'
-        });
-        return test.done();
+        if (cnt === 2) {
+          model.stopListening();
+          return model.listenToOnce(h1, 'click', function(el, event){
+            return once = true;
+          });
+        }
       });
-      return $('h1').trigger('click', {
-        some: 'data'
+      h1.trigger('click', {
+        some: 'data1'
       });
+      h1.trigger('click', {
+        some: 'data2'
+      });
+      h1.trigger('click', {
+        some: 'data3'
+      });
+      h1.trigger('click', {
+        some: 'data4'
+      });
+      test.equals(once, true);
+      return test.done();
     });
   };
 }).call(this);

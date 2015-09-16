@@ -48,29 +48,30 @@ _.each listenMethods, (implementation, method) ->
   Backbone.Model::[method] = (obj, name, callback) ->
     listeningTo = @._listeningTo or @._listeningTo = {}
     id = obj._listenId or obj._listenId = _.uniqueId('l')
+
     listeningTo[id] = obj
     if not callback and typeof name is 'object' then callback = @
     if not obj.jquery? then obj[implementation] name, callback, @
     else
-      if implementation is 'on' then implementation := 'one'
+      if implementation is 'once' then implementation := 'one'
       obj[implementation] name, callback
     @
     
 
 Backbone.Model::stopListening = (obj, name, callback) ->
-      listeningTo = @_listeningTo
-      if not listeningTo then return @
-      remove = not name and not callback
-      
-      if not callback and typeof name is 'object' then callback = @
-      if obj then (listeningTo = {})[obj._listenId] = obj
-      
-      _.each listeningTo, (obj, id) ~> 
-        if not obj.jquery? then obj.off name, callback, @
-        else obj.off name, callback
-        
-        if remove or _.isEmpty(obj._events) then delete @_listeningTo[id]
-      @
+  listeningTo = @_listeningTo
+  if not listeningTo then return @
+  remove = not name and not callback
+
+  if not callback and typeof name is 'object' then callback = @
+  if obj then (listeningTo = {})[obj._listenId] = obj
+
+  _.each listeningTo, (obj, id) ~> 
+    if not obj.jquery? then obj.off name, callback, @
+    else obj.off name, callback
+
+    if remove or _.isEmpty(obj._events) then delete @_listeningTo[id]
+  @
 
 
 metaMerger = exports.metaMerger = {}

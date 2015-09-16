@@ -205,15 +205,24 @@ exports.listenToJquery = (test) ->
     '<html><body><h1>hi there</h1></body></html>'
     (error, window) ->      
       $ = require('jquery') window
-      a = new Backbone.Model()
+      model = new Backbone.Model()
+      once = false
       cnt = 0
-      
-      a.listenTo $('h1'), 'click', ->
+      h1 = $('h1')
+      model.listenTo h1, 'click', (el, event) ->
         cnt := cnt + 1
-        test.equals cnt, 1
-        a.stopListening()
-        $('h1').trigger 'click', { some: 'data' }
-        test.done()
 
-      $('h1').trigger 'click', { some: 'data' }
+        if cnt is 2
+          model.stopListening()
+          model.listenToOnce h1, 'click', (el, event) ->
+            once := true
+            
+
+
+      h1.trigger 'click', { some: 'data1' }
+      h1.trigger 'click', { some: 'data2' }
+      h1.trigger 'click', { some: 'data3' }
+      h1.trigger 'click', { some: 'data4' }
+      test.equals once, true
+      test.done()
 
