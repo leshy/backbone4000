@@ -9,7 +9,7 @@ _.extend exports, Backbone
 
 Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.extend4000 = (...classes) ->
   classProperties = {}
-  classes.reverse()
+  
   classes = _.map classes, (cls) ->
     if not cls
       console.log "one of my classes is empty, will throw:\n", classes
@@ -41,6 +41,37 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
     
 SubContext = Backbone.Model.extend4000( remove: -> @stopListening() )
 Backbone.Model::subContext = -> return new SubContext()
+
+listenMethods = { listenTo: 'on', listenToOnce: 'once'};
+
+_.each listenMethods, (implementation, method) ->
+  Backbone.Model::[method] = (obj, name, callback) ->
+    listeningTo = @._listeningTo or @._listeningTo = {}
+    id = obj._listenId or obj._listenId = _.uniqueId('l')
+    listeningTo[id] = obj
+    if not callback and typeof name is 'object' then callback = @
+    if not obj.jquery? then obj[implementation] name, callback, @
+    else
+      if implementation is 'on' then implementation := 'one'
+      obj[implementation] name, callback
+    @
+    
+
+Backbone.Model::stopListening = (obj, name, callback) ->
+      listeningTo = @_listeningTo
+      if not listeningTo then return @
+      remove = not name and not callback
+      
+      if not callback and typeof name is 'object' then callback = @
+      if obj then (listeningTo = {})[obj._listenId] = obj
+      
+      _.each listeningTo, (obj, id) ~> 
+        if not obj.jquery? then obj.off name, callback, @
+        else obj.off name, callback
+        
+        if remove or _.isEmpty(obj._events) then delete @_listeningTo[id]
+      @
+
 
 metaMerger = exports.metaMerger = {}
 

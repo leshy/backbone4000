@@ -3,6 +3,7 @@ util = require 'util'
 colors = require 'colors'
 h = require 'helpers'
 _ = require 'underscore'
+$ = require 'jquery'
   
 exports.basicExtend = (test) ->
   res = {}
@@ -162,9 +163,6 @@ exports.collectionCollection = (test) ->
   test.done()
 
 
-
-
-
 exports.mergers = (test) ->
   res = {}
 
@@ -195,7 +193,27 @@ exports.mergers = (test) ->
 
   c = new C()
   c.test()
-  test.deepEqual testA, [ 'i1', 'i2', 'i3', 'i4', '4', '3', '2', '1' ]
+  test.deepEqual testA, [ 'i1', 'i3', 'i2', 'i4', '4', '2', '3', '1' ]
 #  test.equals c.x, 1
   test.done()
+
+
+
+
+exports.listenToJquery = (test) ->
+  require('jsdom').env do
+    '<html><body><h1>hi there</h1></body></html>'
+    (error, window) ->      
+      $ = require('jquery') window
+      a = new Backbone.Model()
+      cnt = 0
+      
+      a.listenTo $('h1'), 'click', ->
+        cnt := cnt + 1
+        test.equals cnt, 1
+        a.stopListening()
+        $('h1').trigger 'click', { some: 'data' }
+        test.done()
+
+      $('h1').trigger 'click', { some: 'data' }
 

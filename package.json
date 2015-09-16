@@ -12,8 +12,12 @@
     "email": "lesh@sysphere.org"
   },
   "dependencies": {
-    "underscore": "1.x",
-    "backbone": "backbone = 1.1.2"
+    "backbone": "backbone = 1.1.2",
+    "underscore": "1.x"
   },
-  "main": "index"
+  "main": "index",
+  "devDependencies": {
+    "jquery": "^2.1.4",
+    "jsdom": "^3.1.2"
+  }
 }

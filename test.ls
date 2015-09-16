@@ -1,39 +1,14 @@
-backbone = require './index'
+Backbone = require './index'
 
-A = exports.A = backbone.Model.extend4000(
-  {
-    _name: 'A1'
-    initialize: -> console.log 'initargs', it
-    testf: -> console.log 'testf a1'
-  },
+require('jsdom').env do
+  '<html><body><h1>hi there</h1></body></html>'
+  (error, window) ->      
+    $ = require('jquery') window
+    a = new Backbone.Model()
+    a.listenTo $('h1'), 'click', ->
+      a.stopListening()
+      $('h1').trigger 'click', { some: 'data' }
 
-  {
-    _name: 'A2'
-    initialize: -> console.log 'getbla', @bla
-    testf: -> console.log 'testf a2'
-  })
+    #$('h1').on 'click', (element, event) -> console.log event
+    $('h1').trigger 'click', { some: 'data' }
 
-
-B = exports.B = A.extend4000({
-  _name: 'B'
-  initialize: ->
-    console.log "VALIDATOR", @bla, @get 'bla'
-  
-  testf: ->
-    console.log 'testf b called'
-    @_super 'testf', 1, 2
-    return 3
-})
-
-
-C = exports.C = B.extend4000({
-  _name: 'C'
-  bla: 6
-})
-
-
-c = new C bla: 666
-
-
-
-console.log c.testf()
