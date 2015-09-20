@@ -53,8 +53,11 @@ _.each listenMethods, (implementation, method) ->
     if not callback and typeof name is 'object' then callback = @
     if not obj.jquery? then obj[implementation] name, callback, @
     else
-      if implementation is 'once' then implementation := 'one'
-      obj[implementation] name, callback
+      if implementation is 'once'
+        obj.one name, callback
+      else
+        obj[implementation] name, callback
+      
     @
     
 

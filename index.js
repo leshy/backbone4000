@@ -69,9 +69,10 @@
         obj[implementation](name, callback, this);
       } else {
         if (implementation === 'once') {
-          implementation = 'one';
+          obj.one(name, callback);
+        } else {
+          obj[implementation](name, callback);
         }
-        obj[implementation](name, callback);
       }
       return this;
     };
