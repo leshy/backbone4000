@@ -56,8 +56,7 @@ _.each listenMethods, (implementation, method) ->
       if implementation is 'once'
         obj.one name, callback
       else
-        obj[implementation] name, callback
-      
+        obj[implementation] name, callback      
     @
     
 

@@ -1,6 +1,7 @@
 {
   "name": "backbone4000",
   "version": "0.0.1",
+  "license": "ISC",
   "description": "some minor backbone extensions",
   "private": true,
   "keywords": [
@@ -13,11 +14,9 @@
   },
   "dependencies": {
     "backbone": "backbone = 1.1.2",
-    "underscore": "1.x"
+    "underscore": "^1.8.3",
+    "helpers": "git://github.com/leshy/nodejs-helpers.git"
   },
   "main": "index",
-  "devDependencies": {
-    "jquery": "^2.1.4",
-    "jsdom": "^3.1.2"
-  }
+  "devDependencies": {}
 }
