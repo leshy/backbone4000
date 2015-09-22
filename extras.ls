@@ -1,6 +1,5 @@
 require! {
   underscore: _
-  colors
 }
 
 Backbone = require './index'

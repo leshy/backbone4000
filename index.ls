@@ -59,7 +59,6 @@ _.each listenMethods, (implementation, method) ->
         obj[implementation] name, callback      
     @
     
-
 Backbone.Model::stopListening = (obj, name, callback) ->
   listeningTo = @_listeningTo
   if not listeningTo then return @
@@ -74,7 +73,6 @@ Backbone.Model::stopListening = (obj, name, callback) ->
 
     if remove or _.isEmpty(obj._events) then delete @_listeningTo[id]
   @
-
 
 metaMerger = exports.metaMerger = {}
 
