@@ -152,8 +152,10 @@
     }
   });
   AttrTagged = exports.AttrTagged = Tagged.extend4000({
+    initialize: function(){
+      return this.tags = this.get('tags');
+    },
     forktags: function(){
-      this.tags = this.get('tags');
       if (!this.tags) {
         this.set({
           tags: this.tags = {}

@@ -68,6 +68,7 @@ CollectionCollection = exports.CollectionCollection = Backbone.Collection.extend
       @stopListening collection
       @trigger 'remove', collection
 
+
 # hasTag(tags...)
 # hasTagOr(tags...)
 # addtag(tags...)
@@ -110,9 +111,11 @@ Tagged = exports.Tagged = Backbone.Model.extend4000 do
     hasTagOr: (...tags) -> _.find _.keys(@tags), (tag) -> tag in tags
 
 # like tagged but keeps its tags in @attributes
-AttrTagged = exports.AttrTagged = Tagged.extend4000 do    
-  forktags: ->
+AttrTagged = exports.AttrTagged = Tagged.extend4000 do
+  initialize: ->
     @tags = @get 'tags'
+    
+  forktags: ->
     if not @tags then @set tags: @tags = {}
     if @touch then @touch 'tags' # for remotemodel, register the change
 
