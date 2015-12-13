@@ -118,4 +118,10 @@ AttrTagged = exports.AttrTagged = Tagged.extend4000 do
     if not @tags then @set tags: @tags = {}
     if @touch then @touch 'tags' # for remotemodel, register the change
 
-
+  hasTag: (...args) ->
+    if not @tags then @tags = @get 'tags'
+    Tagged::hasTag.apply @, args
+    
+  hasTagOr: (...args) ->
+    if not @tags then @tags = @get 'tags'
+    Tagged::hasTagOr.apply @, args
