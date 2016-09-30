@@ -1,10 +1,7 @@
-require! {
-  underscore: _
-}
+# autocompile
+require! { underscore: _ }
 
-Backbone = require './index'
-
-_.extend exports, Backbone
+exports <<< Backbone = require './index'
 
 #
 # wait, this could be replaces by the vanilla backbone collection? it supports sorting
@@ -23,10 +20,7 @@ OrderedDict = exports.OrderedDict = Backbone.Model.extend4000 do
 
     _.map initValues, ~> @set it
       
-
   map: (cb) -> _.map @order, (key) ~> cb @get(key), key
-
-
 
 #
 # collection that holds other collections. this is so dumb, should be supported by default to arbitrary depth
@@ -103,13 +97,16 @@ Tagged = exports.Tagged = Backbone.Model.extend4000 do
     addTags: (...tags) ->
       tags = _.flatten tags
       _.each tags, ~> @addTag it
+      
+    delTags: (...tags) ->
+      tags = _.flatten tags
+      _.each tags, ~> @delTag it
 
     hasTag: (...tags) ->
       tags = _.flatten tags
       not _.find(tags, (tag) ~> not @tags?[tag])
 
     hasTagOr: (...tags) -> _.find _.keys(@tags), (tag) -> tag in tags
-
 
 # like tagged but keeps its tags in @attributes
 AttrTagged = exports.AttrTagged = Tagged.extend4000 do
