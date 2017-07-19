@@ -168,22 +168,6 @@
       if (this.touch) {
         return this.touch('tags');
       }
-    },
-    hasTag: function(){
-      var args;
-      args = slice$.call(arguments);
-      if (!this.tags) {
-        this.tags = this.get('tags');
-      }
-      return Tagged.prototype.hasTag.apply(this, args);
-    },
-    hasTagOr: function(){
-      var args;
-      args = slice$.call(arguments);
-      if (!this.tags) {
-        this.tags = this.get('tags');
-      }
-      return Tagged.prototype.hasTagOr.apply(this, args);
     }
   });
   function import$(obj, src){

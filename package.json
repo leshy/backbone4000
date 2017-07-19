@@ -1,22 +1,67 @@
 {
-  "name": "backbone4000",
-  "version": "0.0.1",
-  "license": "ISC",
+  "_args": [
+    [
+      "backbone4000@git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+      "/home/lesh/coding/waveme"
+    ]
+  ],
+  "_from": "git://github.com/leshy/backbone4000.git",
+  "_id": "backbone4000@0.0.1",
+  "_inCache": true,
+  "_location": "/backbone4000",
+  "_phantomChildren": {},
+  "_requested": {
+    "hosted": {
+      "directUrl": "https://raw.githubusercontent.com/leshy/backbone4000/8f9d457c09b8c4b53184862a5c0eba88781a34df/package.json",
+      "gitUrl": "git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+      "httpsUrl": "git+https://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+      "shortcut": "github:leshy/backbone4000#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+      "ssh": "git@github.com:leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+      "sshUrl": "git+ssh://git@github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+      "type": "github"
+    },
+    "name": "backbone4000",
+    "raw": "backbone4000@git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+    "rawSpec": "git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+    "scope": null,
+    "spec": "git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+    "type": "hosted"
+  },
+  "_requiredBy": [
+    "/",
+    "/collections",
+    "/collections-remote",
+    "/subscriptionman2",
+    "/taggy",
+    "/validator2-extras"
+  ],
+  "_resolved": "git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+  "_shasum": "57e06fcd585f423e499363f3bb46ff39777d1fd0",
+  "_shrinkwrap": null,
+  "_spec": "backbone4000@git://github.com/leshy/backbone4000.git#8f9d457c09b8c4b53184862a5c0eba88781a34df",
+  "_where": "/home/lesh/coding/waveme",
+  "author": {
+    "email": "lesh@sysphere.org",
+    "name": "Ivan Nikolic [lesh]"
+  },
+  "dependencies": {
+    "backbone": "^1.1.2",
+    "helpers": "github:leshy/nodejs-helpers",
+    "underscore": "^1.8.3"
+  },
   "description": "some minor backbone extensions",
-  "private": true,
+  "devDependencies": {},
+  "gitHead": "8f9d457c09b8c4b53184862a5c0eba88781a34df",
   "keywords": [
     "json",
     "match"
   ],
-  "author": {
-    "name": "Ivan Nikolic [lesh]",
-    "email": "lesh@sysphere.org"
-  },
-  "dependencies": {
-    "backbone": "backbone = 1.1.2",
-    "underscore": "^1.8.3",
-    "helpers": "leshy/nodejs-helpers.git"
-  },
+  "license": "ISC",
   "main": "index",
-  "devDependencies": {}
+  "name": "backbone4000",
+  "optionalDependencies": {},
+  "private": true,
+  "readme": "### some small backbone features I miss\n\n\n.extend4000 - multiple inheritance aditions, automatically calls initialize on superclasses, and defaults object is _.extend ed from superclasses instead of just rewritten\n\nexample:\n`\nBackbone.Model.extend4000(some_other_model, { defaults: { bla: 3 } }, some_other_model2, {defaults: { x: 1 }, initialize: function() { return })\n`\nwill create a model inheriting from all four models, initialize functions and defaults objects will be merged\n\n\n.when (attribute,callback) - run callback if attribute exists or when the attribute first gets set, useful for models that 'activate' when they get all the properties, which are unavailiable when initializing\n\nsubscribe calls return unsubscribe functions\n\n.onOnce - bind for an event and automatically unbind upon the first trigger (implemented by backbone now, as .once)\n\n.listenToOnce - same as onOnce\n\n.singleton - create a class and immediately instantiate it\n\n._super(methodname, arguments...) - call a method from a superclass\n\n\n",
+  "readmeFilename": "README.md",
+  "version": "0.0.1"
 }

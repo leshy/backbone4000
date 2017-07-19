@@ -1,4 +1,4 @@
-#!/usr/bin/lsc
+# autocompile
 require! {
   underscore: _
   helpers: h
@@ -58,7 +58,19 @@ _.each listenMethods, (implementation, method) ->
       else
         obj[implementation] name, callback      
     @
-    
+
+Backbone.Model::toJSON = ->
+  attr = _.clone @attributes
+  if @stringifyOmit then attr = _.omit attr, @stringifyOmit
+  if @stringifyPick then attr = _.pick attr, @stringifyPick
+  @stringifyParse attr
+  
+Backbone.Model::stringifyParse = (attr) ->
+  console.log "root stringify", attr
+  _.mapObject attr, (value, key) ->
+    if typeof! value is 'Object' and value@@ isnt Object then value.toJSON?!
+    else value  
+            
 Backbone.Model::stopListening = (obj, name, callback) ->
   listeningTo = @_listeningTo
   if not listeningTo then return @
@@ -73,6 +85,23 @@ Backbone.Model::stopListening = (obj, name, callback) ->
 
     if remove or _.isEmpty(obj._events) then delete @_listeningTo[id]
   @
+
+
+#
+# metaMergers are the core of this object models multiple inheritance system
+# 
+# they define the way multiple classes combine themselves the final class
+#
+# methods and attributes are not neccessarily just replaced by a top level definition but chained, piped, replaced, added, or parsed in arbitrary ways into the final class methods and attributes
+# supports configuring the mergers from the constructor definitions themselves and merge postprocessing
+#
+# for example, for the default model,
+# "defaults" Object attribute is merged from superclasses
+# "initialize" functions are ran one after the other
+# "stringifyParse" functions are piped into each other
+#
+# check https://github.com/leshy/abstractman/blob/master/graph.ls for an advanced use case
+# 
 
 metaMerger = exports.metaMerger = {}
 
@@ -89,29 +118,63 @@ metaMerger.iterative = (options, attrName) -->
 
     if joinedAttribute
       ret = {}
-      ret[attrName] = joinedAttribute   
+      ret[attrName] = joinedAttribute
+      
       # postprocessing?
       if postJoin then postJoin ret, attrName, options
       else ret
       
     else void
 
-
 metaMerger.mergeAttributeLeft = metaMerger.mergeAttribute = metaMerger.iterative
 
-metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
-metaMerger.chainFRight = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
+metaMerger <<< do
+  chainF:
+    metaMerger.mergeAttribute do
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> -> f2(...); f1(...))
+  
+  chainFRight:
+    metaMerger.mergeAttribute do
+      right: true
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> -> f2(...); f1(...))  
 
-metaMerger.mergeDict = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
-metaMerger.mergeDictDeep = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
+  pipeF:
+    metaMerger.mergeAttribute do
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> f2 << f1)
+  
+  pipeFRight:
+    metaMerger.mergeAttribute do
+      right: true
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> f1 << f2)  
 
-merger = exports.merger = {}
+  mergeDict:
+    metaMerger.mergeAttribute do
+      right: true
+      check: ((d) -> d?@@ is Object)
+      join: (d1, d2) -> {} <<< d1 <<< d2
+  
+  mergeDictDeep:
+    metaMerger.mergeAttribute do
+      right: true, check: ((d) -> d?@@ is Object)
+      join: (d1, d2) -> h.extend d1, d2
 
-merger.initialize = metaMerger.chainF 'initialize'
-merger.defaults = metaMerger.mergeDict 'defaults'
-merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
+merger = exports.merger = do
+  initialize: metaMerger.chainF 'initialize'
+  defaults: metaMerger.mergeDict 'defaults'
+  deepDefaults: metaMerger.mergeDictDeep 'defaults'
 
-Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
-Backbone.View.mergers = [ merger.initialize ]
+Backbone.Model.mergers = [
+  merger.initialize
+  defaults
+  metaMerger.pipeFRight('stringifyParse')
+]
+
+Backbone.View.mergers = [
+  merger.initialize
+]
 
 
