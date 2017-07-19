@@ -60,16 +60,15 @@ _.each listenMethods, (implementation, method) ->
     @
 
 Backbone.Model::toJSON = ->
-  attr = @attributes
-  
+  attr = _.clone @attributes
   if @stringifyOmit then attr = _.omit attr, @stringifyOmit
   if @stringifyPick then attr = _.pick attr, @stringifyPick
-    
   @stringifyParse attr
   
 Backbone.Model::stringifyParse = (attr) ->
+  console.log "root stringify", attr
   _.mapObject attr, (value, key) ->
-    if value instanceof Object and value@@ isnt Object then value.toJSON?!
+    if typeof! value is 'Object' and value@@ isnt Object then value.toJSON?!
     else value  
             
 Backbone.Model::stopListening = (obj, name, callback) ->
@@ -102,25 +101,49 @@ metaMerger.iterative = (options, attrName) -->
 
     if joinedAttribute
       ret = {}
-      ret[attrName] = joinedAttribute   
+      ret[attrName] = joinedAttribute
+      
       # postprocessing?
       if postJoin then postJoin ret, attrName, options
       else ret
       
     else void
 
-
 metaMerger.mergeAttributeLeft = metaMerger.mergeAttribute = metaMerger.iterative
 
-metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
-metaMerger.chainFRight = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
+metaMerger <<< do
+  chainF:
+    metaMerger.mergeAttribute do
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> -> f2(...); f1(...))
+  
+  chainFRight:
+    metaMerger.mergeAttribute do
+      right: true
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> -> f2(...); f1(...))  
 
-metaMerger.pipeF = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> f2 << f1)  
-metaMerger.pipeFRight = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> f1 << f2)  
+  pipeF:
+    metaMerger.mergeAttribute do
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> f2 << f1)
+  
+  pipeFRight:
+    metaMerger.mergeAttribute do
+      right: true
+      check: ((f) -> f?@@ is Function)
+      join: ((f1, f2) -> f1 << f2)  
 
-
-metaMerger.mergeDict = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
-metaMerger.mergeDictDeep = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
+  mergeDict:
+    metaMerger.mergeAttribute do
+      right: true
+      check: ((d) -> d?@@ is Object)
+      join: (d1, d2) -> {} <<< d1 <<< d2
+  
+  mergeDictDeep:
+    metaMerger.mergeAttribute do
+      right: true, check: ((d) -> d?@@ is Object)
+      join: (d1, d2) -> h.extend d1, d2
 
 merger = exports.merger = {}
 

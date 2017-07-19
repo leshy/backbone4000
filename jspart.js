@@ -115,10 +115,6 @@ exports.PassiveCollection = PassiveCollection = function () {
 
 PassiveCollection.prototype = _.extend({},Backbone.Collection.prototype)
 
-
-
-
-
 // The super method takes two parameters: a method name
 // and an array of arguments to pass to the overridden method.
 // This is to optimize for the common case of passing 'arguments'.
