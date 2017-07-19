@@ -1,4 +1,4 @@
-#!/usr/bin/lsc
+# autocompile
 require! {
   underscore: _
   helpers: h
@@ -58,7 +58,16 @@ _.each listenMethods, (implementation, method) ->
       else
         obj[implementation] name, callback      
     @
-    
+
+Backbone.Model::toJSON = ->
+  attr = @attributes
+  if @stringifyOmit then attr = _.omit attr, @stringifyOmit
+  if @stringifyPick then attr = _.pick attr, @stringifyPick
+  
+  _.mapObject attr, (value, key) ->
+    if value instanceof Object and value@@ isnt Object then value.toJSON?!
+    else value
+            
 Backbone.Model::stopListening = (obj, name, callback) ->
   listeningTo = @_listeningTo
   if not listeningTo then return @
