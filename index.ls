@@ -66,7 +66,6 @@ Backbone.Model::toJSON = ->
   @stringifyParse attr
   
 Backbone.Model::stringifyParse = (attr) ->
-  console.log "root stringify", attr
   _.mapObject attr, (value, key) ->
     if typeof! value is 'Object' and value@@ isnt Object then value.toJSON?!
     else value  
@@ -169,7 +168,7 @@ merger = exports.merger = do
 
 Backbone.Model.mergers = [
   merger.initialize
-  defaults
+  merger.defaults
   metaMerger.pipeFRight('stringifyParse')
 ]
 
