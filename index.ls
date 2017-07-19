@@ -95,9 +95,12 @@ Backbone.Model::stopListening = (obj, name, callback) ->
 # methods and attributes are not neccessarily just replaced by a top level definition but chained, piped, replaced, added, or parsed in arbitrary ways into the final class methods and attributes
 # supports configuring the mergers from the constructor definitions themselves and merge postprocessing
 #
-# for example "defaults" Object attribute is merged from superclasses
+# for example, for the default model,
+# "defaults" Object attribute is merged from superclasses
 # "initialize" functions are ran one after the other
 # "stringifyParse" functions are piped into each other
+#
+# check https://github.com/leshy/abstractman/blob/master/graph.ls for an advanced use case
 # 
 
 metaMerger = exports.metaMerger = {}
