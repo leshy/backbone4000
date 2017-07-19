@@ -61,12 +61,16 @@ _.each listenMethods, (implementation, method) ->
 
 Backbone.Model::toJSON = ->
   attr = @attributes
+  
   if @stringifyOmit then attr = _.omit attr, @stringifyOmit
   if @stringifyPick then attr = _.pick attr, @stringifyPick
+    
+  @stringifyParse attr
   
+Backbone.Model::stringifyParse = (attr) ->
   _.mapObject attr, (value, key) ->
     if value instanceof Object and value@@ isnt Object then value.toJSON?!
-    else value
+    else value  
             
 Backbone.Model::stopListening = (obj, name, callback) ->
   listeningTo = @_listeningTo
@@ -111,6 +115,10 @@ metaMerger.mergeAttributeLeft = metaMerger.mergeAttribute = metaMerger.iterative
 metaMerger.chainF = metaMerger.mergeAttribute check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
 metaMerger.chainFRight = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> -> f2(...); f1(...))  
 
+metaMerger.pipeF = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> f2 << f1)  
+metaMerger.pipeFRight = metaMerger.mergeAttribute right: true, check: ((f) -> f?@@ is Function), join: ((f1, f2) -> f1 << f2)  
+
+
 metaMerger.mergeDict = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> _.extend {}, d1, d2
 metaMerger.mergeDictDeep = metaMerger.mergeAttribute right: true, check: ((d) -> d?@@ is Object), join: (d1, d2) -> h.extend d1, d2
 
@@ -119,8 +127,9 @@ merger = exports.merger = {}
 merger.initialize = metaMerger.chainF 'initialize'
 merger.defaults = metaMerger.mergeDict 'defaults'
 merger.deepDefaults = metaMerger.mergeDictDeep 'defaults'
+merger.stringifyParse = metaMerger.pipeFRight 'stringifyParse'
 
-Backbone.Model.mergers = [ merger.initialize, merger.defaults ]
+Backbone.Model.mergers = [ merger.initialize, merger.defaults, merger.stringifyParse ]
 Backbone.View.mergers = [ merger.initialize ]
 
 
