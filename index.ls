@@ -31,6 +31,7 @@ Backbone.Model.extend4000 = Backbone.View.extend4000 = Backbone.Collection.exten
   newClass = _.reduce classes, ((newClass,includeClass) ->
     newClass.extend includeClass), @
 
+
   # apply metaclass transformations
   transformers = classInherit 'transformers'
   newClass = _.reduce( (transformers or []), ((newClass,transformer) ~> transformer(newClass,@)), newClass)
