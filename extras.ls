@@ -114,3 +114,26 @@ AttrTagged = exports.AttrTagged = Tagged.extend4000 do
     if not @tags then @set tags: @tags = {}
     if @touch then @touch 'tags' # for remotemodel, register the change
 
+
+# Just a common pattern,
+# this is for model that hosts bunch of models of a same type with names and references to parent
+# it automatically instantiates new ones when they are mentioned
+
+MotherShip = exports.MotherShip = (name) ->
+  Backbone.Model.extend4000 do
+    initialize:  ->
+      @[name + "s"] = @collection = new Backbone.Collection()
+
+    "#{name}": (instanceName, attributes={}) ->
+      if instance = @collection.get(instanceName) then return instance
+        
+      instanceClass = @[name + "Class"]
+      if not instanceClass then throw "I don't have " + name + "Class attribute defined"
+        
+      instance = new instanceClass { parent: @, id: instanceName } <<< attributes
+      @collection.add instance
+
+    add: (instanceName, instance) ->
+      instance.id = instanceName
+      @collection.add instance
+      
