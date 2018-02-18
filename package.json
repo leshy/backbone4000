@@ -46,8 +46,9 @@
   },
   "dependencies": {
     "backbone": "^1.1.2",
-    "helpers": "github:leshy/nodejs-helpers",
+    "helpers": "git+ssh://git@github.com/leshy/nodejs-helpers.git",
     "underscore": "^1.8.3"
+    
   },
   "description": "some minor backbone extensions",
   "devDependencies": {},
