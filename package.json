@@ -45,10 +45,9 @@
     "name": "Ivan Nikolic [lesh]"
   },
   "dependencies": {
-    "backbone": "^1.1.2",
-    "helpers": "git+ssh://git@github.com/leshy/nodejs-helpers.git",
+    "backbone": "^1.3.3",
+    "helpers": "git+https://github.com/leshy/nodejs-helpers.git",
     "underscore": "^1.8.3"
-    
   },
   "description": "some minor backbone extensions",
   "devDependencies": {},
