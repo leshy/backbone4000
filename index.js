@@ -223,7 +223,7 @@
     defaults: metaMerger.mergeDict('defaults'),
     deepDefaults: metaMerger.mergeDictDeep('defaults')
   };
-  Backbone.Model.mergers = [merger.initialize, defaults, metaMerger.pipeFRight('stringifyParse')];
+  Backbone.Model.mergers = [merger.initialize, merger.defaults, metaMerger.pipeFRight('stringifyParse')];
   Backbone.View.mergers = [merger.initialize];
   function curry$(f, bound){
     var context,
